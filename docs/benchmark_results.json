@@ -1,9 +1,9 @@
 {
 	"benchmark": "Industrial Ops Brain Evidence Benchmark",
 	"description": "Deterministic benchmark over the complete repository sample_data corpus. It parses real files, builds an offline retrieval baseline, validates expected QA evidence, source citations, grounded answer claims, no-answer controls, entity recall, numeric and tabular logic, compliance gaps, contradiction pairs, RCA evidence, graph links, graph validation, parser coverage, source coverage, and latency without calling an LLM or mutating the database.",
-	"generated_at": "2026-07-19T20:26:54.572369+00:00",
-	"elapsed_ms": 309.81,
-	"parse_elapsed_ms": 250.57,
+	"generated_at": "2026-07-20T20:48:08.491761+00:00",
+	"elapsed_ms": 550.81,
+	"parse_elapsed_ms": 496.7,
 	"passed": 71,
 	"failed": 0,
 	"total": 71,
@@ -62,9 +62,9 @@
 			"graph_validation": 3,
 			"parser": 6
 		},
-		"total_latency_ms": 309.81,
-		"parse_latency_ms": 250.57,
-		"p95_check_latency_ms": 4.56
+		"total_latency_ms": 550.81,
+		"parse_latency_ms": 496.7,
+		"p95_check_latency_ms": 3.95
 	},
 	"quality_gates": [
 		{
@@ -220,19 +220,19 @@
 		{
 			"name": "maximum_total_latency_ms",
 			"expected": 10000.0,
-			"actual": 309.81,
+			"actual": 550.81,
 			"passed": true
 		},
 		{
 			"name": "maximum_parse_latency_ms",
 			"expected": 7000.0,
-			"actual": 250.57,
+			"actual": 496.7,
 			"passed": true
 		},
 		{
 			"name": "maximum_p95_check_latency_ms",
 			"expected": 25.0,
-			"actual": 4.56,
+			"actual": 3.95,
 			"passed": true
 		}
 	],
@@ -263,7 +263,7 @@
 				"citation_hit": true,
 				"answer_hit": true
 			},
-			"elapsed_ms": 0.13
+			"elapsed_ms": 0.12
 		},
 		{
 			"id": "qa-p101-vibration-limit",
@@ -289,7 +289,7 @@
 				"citation_hit": true,
 				"answer_hit": true
 			},
-			"elapsed_ms": 0.06
+			"elapsed_ms": 0.07
 		},
 		{
 			"id": "qa-c204-inspection-gap",
@@ -316,7 +316,7 @@
 				"citation_hit": true,
 				"answer_hit": true
 			},
-			"elapsed_ms": 0.05
+			"elapsed_ms": 0.07
 		},
 		{
 			"id": "qa-b12-energy-isolation",
@@ -342,7 +342,7 @@
 				"citation_hit": true,
 				"answer_hit": true
 			},
-			"elapsed_ms": 0.05
+			"elapsed_ms": 0.04
 		},
 		{
 			"id": "qa-sensor-anomaly",
@@ -421,7 +421,7 @@
 				"citation_hit": true,
 				"answer_hit": true
 			},
-			"elapsed_ms": 0.04
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "qa-hx22-inspection-outcome",
@@ -525,7 +525,7 @@
 				"ndcg_at_k": 0.9047,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.08
+			"elapsed_ms": 3.66
 		},
 		{
 			"id": "ret-p101-vibration-threshold-actions",
@@ -591,7 +591,7 @@
 				"ndcg_at_k": 0.9558,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.2
+			"elapsed_ms": 3.69
 		},
 		{
 			"id": "ret-c204-compliance-overdue",
@@ -661,7 +661,7 @@
 				"ndcg_at_k": 0.9469,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.03
+			"elapsed_ms": 3.8
 		},
 		{
 			"id": "ret-b12-energy-isolation",
@@ -723,7 +723,7 @@
 				"ndcg_at_k": 1.0,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 5.15
+			"elapsed_ms": 4.66
 		},
 		{
 			"id": "ret-p101-critical-spare-stockout",
@@ -788,7 +788,7 @@
 				"ndcg_at_k": 1.0,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.37
+			"elapsed_ms": 3.53
 		},
 		{
 			"id": "ret-hx22-inspection-loop",
@@ -846,7 +846,7 @@
 				"ndcg_at_k": 1.0,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.19
+			"elapsed_ms": 3.93
 		},
 		{
 			"id": "ret-c204-temperature-anomaly",
@@ -904,7 +904,7 @@
 				"ndcg_at_k": 1.0,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.08
+			"elapsed_ms": 4.2
 		},
 		{
 			"id": "ret-pid-line-break-loto",
@@ -962,7 +962,7 @@
 				"ndcg_at_k": 0.8503,
 				"retrieval_hit": true
 			},
-			"elapsed_ms": 4.74
+			"elapsed_ms": 6.04
 		},
 		{
 			"id": "ground-p101-seal-failure-claims",
@@ -1016,7 +1016,7 @@
 				"faithfulness_proxy": 0.6667,
 				"grounded_answer_hit": true
 			},
-			"elapsed_ms": 1.56
+			"elapsed_ms": 1.29
 		},
 		{
 			"id": "ground-c204-compliance-claims",
@@ -1062,7 +1062,7 @@
 				"faithfulness_proxy": 1.0,
 				"grounded_answer_hit": true
 			},
-			"elapsed_ms": 0.86
+			"elapsed_ms": 0.7
 		},
 		{
 			"id": "ground-b12-energy-isolation-claims",
@@ -1110,7 +1110,7 @@
 				"faithfulness_proxy": 1.0,
 				"grounded_answer_hit": true
 			},
-			"elapsed_ms": 0.96
+			"elapsed_ms": 0.92
 		},
 		{
 			"id": "ground-p101-stockout-claims",
@@ -1146,7 +1146,7 @@
 				"faithfulness_proxy": 0.5,
 				"grounded_answer_hit": true
 			},
-			"elapsed_ms": 0.5
+			"elapsed_ms": 0.46
 		},
 		{
 			"id": "ground-hx22-inspection-claims",
@@ -1182,7 +1182,7 @@
 				"faithfulness_proxy": 1.0,
 				"grounded_answer_hit": true
 			},
-			"elapsed_ms": 0.5
+			"elapsed_ms": 0.44
 		},
 		{
 			"id": "abstain-unknown-asset-p999",
@@ -1221,7 +1221,7 @@
 				"unsupported_terms_absent": true,
 				"top_retrieval_score": 5.4473
 			},
-			"elapsed_ms": 3.58
+			"elapsed_ms": 3.6
 		},
 		{
 			"id": "abstain-unknown-pressure-vessel",
@@ -1260,7 +1260,7 @@
 				"unsupported_terms_absent": true,
 				"top_retrieval_score": 8.9467
 			},
-			"elapsed_ms": 4.78
+			"elapsed_ms": 3.61
 		},
 		{
 			"id": "abstain-future-p101-event",
@@ -1299,7 +1299,7 @@
 				"unsupported_terms_absent": true,
 				"top_retrieval_score": 4.7815
 			},
-			"elapsed_ms": 5.27
+			"elapsed_ms": 3.98
 		},
 		{
 			"id": "entity-p101-equipment",
@@ -1320,7 +1320,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.13
+			"elapsed_ms": 0.04
 		},
 		{
 			"id": "entity-c204-equipment",
@@ -1341,7 +1341,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "entity-b12-equipment",
@@ -1362,7 +1362,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.09
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "entity-hx22-equipment",
@@ -1383,7 +1383,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.07
+			"elapsed_ms": 0.02
 		},
 		{
 			"id": "entity-wo1201-work-order",
@@ -1404,7 +1404,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.1
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "entity-wo1260-work-order",
@@ -1425,7 +1425,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.04
 		},
 		{
 			"id": "entity-api610-regulation",
@@ -1446,7 +1446,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.07
+			"elapsed_ms": 0.02
 		},
 		{
 			"id": "entity-iso45001-regulation",
@@ -1467,7 +1467,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.1
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "entity-vibration-signal",
@@ -1488,7 +1488,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.06
+			"elapsed_ms": 0.02
 		},
 		{
 			"id": "entity-mechanical-seal-spare",
@@ -1509,7 +1509,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.05
+			"elapsed_ms": 0.01
 		},
 		{
 			"id": "entity-loto-control",
@@ -1530,7 +1530,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "entity-vlv101-valve",
@@ -1551,7 +1551,7 @@
 				"entity_true_positive": true,
 				"entity_false_negative": false
 			},
-			"elapsed_ms": 0.05
+			"elapsed_ms": 0.02
 		},
 		{
 			"id": "numeric-p101-historian-vibration-breach",
@@ -1573,7 +1573,7 @@
 				"breach_count": 2,
 				"peak_value": 8.2
 			},
-			"elapsed_ms": 1.32
+			"elapsed_ms": 1.64
 		},
 		{
 			"id": "numeric-p101-sensor-vibration-alarm",
@@ -1595,7 +1595,7 @@
 				"breach_count": 1,
 				"peak_value": 8.9
 			},
-			"elapsed_ms": 0.55
+			"elapsed_ms": 0.41
 		},
 		{
 			"id": "numeric-p101-vibration-trend-increase",
@@ -1616,7 +1616,7 @@
 				"numeric_hit": true,
 				"trend_delta": 1.4
 			},
-			"elapsed_ms": 0.46
+			"elapsed_ms": 0.34
 		},
 		{
 			"id": "numeric-p101-mechanical-seal-stock-minimum",
@@ -1638,7 +1638,7 @@
 				"available_qty": 0.0,
 				"minimum_qty": 2.0
 			},
-			"elapsed_ms": 0.48
+			"elapsed_ms": 0.33
 		},
 		{
 			"id": "numeric-c204-inspection-date-gap",
@@ -1663,7 +1663,7 @@
 				"numeric_hit": true,
 				"completed_gap_days": 61
 			},
-			"elapsed_ms": 0.23
+			"elapsed_ms": 0.15
 		},
 		{
 			"id": "compliance-c204-overdue-inspection",
@@ -1687,7 +1687,7 @@
 			"metrics": {
 				"gap_hit": true
 			},
-			"elapsed_ms": 0.06
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "compliance-c204-frequency",
@@ -1796,7 +1796,7 @@
 			"metrics": {
 				"gap_hit": true
 			},
-			"elapsed_ms": 0.07
+			"elapsed_ms": 0.09
 		},
 		{
 			"id": "contradiction-p101-restart-lockout",
@@ -1823,7 +1823,7 @@
 			"metrics": {
 				"contradiction_pair_hit": true
 			},
-			"elapsed_ms": 0.04
+			"elapsed_ms": 0.05
 		},
 		{
 			"id": "contradiction-p101-operating-above-threshold",
@@ -1877,7 +1877,7 @@
 			"metrics": {
 				"contradiction_pair_hit": true
 			},
-			"elapsed_ms": 0.05
+			"elapsed_ms": 0.06
 		},
 		{
 			"id": "rca-p101-seal-leakage",
@@ -1901,7 +1901,7 @@
 			"metrics": {
 				"rca_evidence_hit": true
 			},
-			"elapsed_ms": 0.04
+			"elapsed_ms": 0.05
 		},
 		{
 			"id": "rca-p101-vibration-threshold",
@@ -2071,7 +2071,7 @@
 				"graph_link_hit": true,
 				"validation_status": "accepted"
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.09
 		},
 		{
 			"id": "graph-b12-permit-control",
@@ -2092,7 +2092,7 @@
 				"graph_link_hit": true,
 				"validation_status": "accepted"
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.09
 		},
 		{
 			"id": "graph-p101-contradiction",
@@ -2155,7 +2155,7 @@
 				"graph_link_hit": true,
 				"validation_status": "accepted"
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.09
 		},
 		{
 			"id": "graph-c204-temperature-signal",
@@ -2176,7 +2176,7 @@
 				"graph_link_hit": true,
 				"validation_status": "accepted"
 			},
-			"elapsed_ms": 0.08
+			"elapsed_ms": 0.1
 		},
 		{
 			"id": "graph-validation-accepted-evidence",
@@ -2197,7 +2197,7 @@
 				"graph_validation_hit": true,
 				"validation_status": "accepted"
 			},
-			"elapsed_ms": 0.09
+			"elapsed_ms": 0.1
 		},
 		{
 			"id": "graph-validation-weak-low-confidence",
@@ -2315,7 +2315,7 @@
 			"metrics": {
 				"parser_hit": true
 			},
-			"elapsed_ms": 0.02
+			"elapsed_ms": 0.03
 		},
 		{
 			"id": "parser-historian-csv",

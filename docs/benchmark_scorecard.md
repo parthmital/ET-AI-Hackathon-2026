@@ -1,6 +1,6 @@
 # Benchmark Scorecard
 
-Generated: 2026-07-19T20:26:54.572369+00:00
+Generated: 2026-07-20T20:48:08.491761+00:00
 
 ## Method
 
@@ -16,8 +16,8 @@ Generated: 2026-07-19T20:26:54.572369+00:00
 - Failed: 0
 - Categories: 12
 - Source documents: 17 across 5 formats
-- Runtime: 309.81 ms
-- Parse runtime: 250.57 ms
+- Runtime: 550.81 ms
+- Parse runtime: 496.7 ms
 
 ## Quality Metrics
 
@@ -44,7 +44,7 @@ Generated: 2026-07-19T20:26:54.572369+00:00
 | Parser contract coverage    |  100.0% |
 | Source document coverage    |  100.0% |
 | Source format coverage      |  100.0% |
-| P95 check latency           | 4.56 ms |
+| P95 check latency           | 3.95 ms |
 
 ## Quality Gates
 
@@ -75,9 +75,9 @@ Generated: 2026-07-19T20:26:54.572369+00:00
 | `minimum_source_format_count`         |          5 |         5 | pass   |
 | `minimum_category_count`              |         12 |        12 | pass   |
 | `minimum_check_count`                 |         65 |        71 | pass   |
-| `maximum_total_latency_ms`            | 10000.0 ms | 309.81 ms | pass   |
-| `maximum_parse_latency_ms`            |  7000.0 ms | 250.57 ms | pass   |
-| `maximum_p95_check_latency_ms`        |    25.0 ms |   4.56 ms | pass   |
+| `maximum_total_latency_ms`            | 10000.0 ms | 550.81 ms | pass   |
+| `maximum_parse_latency_ms`            |  7000.0 ms |  496.7 ms | pass   |
+| `maximum_p95_check_latency_ms`        |    25.0 ms |   3.95 ms | pass   |
 
 ## Category Results
 
