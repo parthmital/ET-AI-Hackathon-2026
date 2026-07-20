@@ -1,0 +1,47 @@
+{
+	"name": "industrial-ops-brain-frontend",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"dev:verbose": "next dev",
+		"build": "next build",
+		"build:verbose": "next build",
+		"start": "next start",
+		"start:verbose": "next start",
+		"lint": "eslint .",
+		"lint:verbose": "eslint .",
+		"test:e2e": "playwright test",
+		"test:e2e:headed": "playwright test --headed",
+		"typecheck": "tsc --noEmit",
+		"typecheck:verbose": "tsc --noEmit"
+	},
+	"dependencies": {
+		"lucide-react": "^1.23.0",
+		"motion": "^12.42.2",
+		"next": "^16.2.9",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7",
+		"reactflow": "^11.11.4"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@next/eslint-plugin-next": "^16.2.9",
+		"@playwright/test": "^1.61.1",
+		"@tailwindcss/postcss": "^4.3.2",
+		"@types/node": "^26.1.0",
+		"@types/react": "^19.2.17",
+		"@types/react-dom": "^19.2.3",
+		"autoprefixer": "^10.5.2",
+		"eslint": "^10.6.0",
+		"eslint-plugin-react-hooks": "^7.1.1",
+		"globals": "^17.7.0",
+		"postcss": "^8.5.16",
+		"tailwindcss": "^4.3.2",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.62.1"
+	},
+	"overrides": {
+		"postcss": "$postcss"
+	}
+}

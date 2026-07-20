@@ -1,0 +1,5 @@
+Timestamp,Asset,Signal,Value,Unit,State
+2026-06-03T08:00:00,P-101,vibration,8.9,mm/s,alarm
+2026-06-03T08:05:00,P-101,seal pot pressure,1.1,bar,low
+2026-06-03T08:10:00,C-204,discharge temperature,118,C,alarm
+2026-06-03T08:15:00,C-204,current draw,112,A,high

@@ -1,0 +1,13 @@
+Compressor C-204 Maintenance Log
+Asset: C-204 Instrument Air Compressor
+Location: Compressor Bay
+
+2026-01-10 WO-2301 inspection completed. Supervisor sign-off: present.
+2026-03-12 WO-2404 lubrication completed. Supervisor sign-off: present.
+
+Required inspection frequency: every 60 days.
+
+2026-05-15 inspection record expected but not found. Supervisor sign-off missing.
+
+Failure mode noted: overheating during high ambient temperature operation.
+

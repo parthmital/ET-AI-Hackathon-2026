@@ -1,0 +1,14 @@
+Pump P-101 OEM Manual
+Asset: P-101 Centrifugal Process Pump
+Location: Unit 1 Process Area
+
+The pump shall not operate continuously above vibration threshold of 7 mm/s. High vibration indicates bearing wear, shaft misalignment, or inadequate lubrication.
+
+Recommended maintenance activity: bearing replacement after abnormal vibration trend and seal replacement after leakage is detected.
+
+Mechanical seal and bearing kit must be available before planned shutdown.
+
+Work order WO-1201 recorded vibration warning on 2026-04-11.
+
+Safety hazard: rotating equipment and stored pressure. PPE requirement: safety shoes and face shield during seal replacement.
+

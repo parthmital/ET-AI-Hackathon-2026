@@ -1,0 +1,10 @@
+Heat Exchanger HX-22 Inspection Report
+Asset: HX-22 Cooling Water Heat Exchanger
+Location: Cooling Water Area
+
+Inspection date: 2026-05-18.
+
+Inspection found mild tube fouling and gasket set wear. Cleaning completed under WO-3102.
+
+No immediate safety hazard observed. Next inspection due 2026-08-18.
+

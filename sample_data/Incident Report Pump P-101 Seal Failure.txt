@@ -1,0 +1,14 @@
+Incident Report Pump P-101 Seal Failure
+Asset: P-101 Centrifugal Process Pump
+Date: 2026-06-02
+
+Incident: repeated seal leakage observed after two high vibration alarms.
+
+Evidence: vibration crossed 8.2 mm/s before seal failure. Bearing replacement was delayed due to shutdown availability.
+
+Inventory note: mechanical seal stockout caused temporary operation with degraded seal condition.
+
+Likely failure mode: seal leakage linked to bearing wear, shaft misalignment, and inadequate lubrication.
+
+Immediate action: stop pump, isolate energy, replace mechanical seal, inspect bearing kit, and verify alignment.
+

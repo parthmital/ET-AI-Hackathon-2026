@@ -1,0 +1,22 @@
+{
+	"name": "industrial-ops-brain",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "node scripts/dev.mjs",
+		"dev:inline": "node scripts/dev.mjs --inline",
+		"dev:verbose": "node scripts/dev.mjs --verbose",
+		"dev:inline:verbose": "node scripts/dev.mjs --inline --verbose",
+		"setup": "node scripts/dev.mjs --setup-only",
+		"benchmark": "node scripts/benchmark.mjs",
+		"benchmark:verbose": "node scripts/benchmark.mjs --verbose",
+		"backend:test": "cd backend && .\\.venv\\Scripts\\python.exe -m unittest discover -s tests -v",
+		"check": "npm run frontend:typecheck && npm run frontend:lint && npm run backend:test && npm run benchmark",
+		"db:clear": ".\\backend\\.venv\\Scripts\\python.exe scripts\\clear_db.py",
+		"frontend:lint": "npm --prefix frontend run lint",
+		"frontend:typecheck": "npm --prefix frontend run typecheck",
+		"screenshots": "node scripts/capture-screenshots.mjs",
+		"smoke": "node scripts/smoke.mjs",
+		"smoke:verbose": "node scripts/smoke.mjs --verbose"
+	}
+}

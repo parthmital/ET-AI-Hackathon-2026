@@ -1,0 +1,14 @@
+Boiler B-12 Safety SOP
+Asset: B-12 Package Boiler
+Location: Boiler House
+
+Procedure: Before servicing Boiler B-12 apply LOTO, verify zero stored pressure, and complete Permit To Work.
+
+PPE requirement: flame-resistant clothing, face shield, heat-resistant gloves, safety shoes, and portable gas detector.
+
+Confined-space permit is required when vessel entry or internal drum inspection is applicable.
+
+Safety hazards: hot surface, steam release, confined space, and flammable gas.
+
+Regulatory reference: Factory Safety Standard and ISO 45001.
+

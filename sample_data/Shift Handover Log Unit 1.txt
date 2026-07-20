@@ -1,0 +1,5 @@
+Shift Handover Log Unit 1
+2026-06-01 P-101 vibration increased from 6.9 mm/s to 8.0 mm/s during evening shift.
+Operator note: seal leakage was visible near the outboard bearing housing.
+Action requested: Reliability team to review alignment check, lubrication history, and bearing kit readiness.
+Safety note: rotating equipment guard verified before handover.

@@ -1,0 +1,6 @@
+Contradiction review 2026-06-03.
+
+Asset P-101 was marked ready for restart after seal replacement in work order WO-7841.
+Asset P-101 remained under lockout pending supervisor sign-off in the safety compliance checklist.
+
+These two records require reconciliation before restart authorisation.

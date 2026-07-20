@@ -1,0 +1,6 @@
+Vendor Service Report P-101
+Asset: P-101 Centrifugal Process Pump
+Service date: 2026-06-03.
+Vendor finding: mechanical seal faces showed thermal distress and bearing wear marks.
+Recommended corrective action: replace mechanical seal, inspect seal flush kit, verify shaft alignment, and restore lubricant cartridge schedule.
+Referenced standard: API 610.

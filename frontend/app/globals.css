@@ -1,0 +1,384 @@
+@import "tailwindcss";
+
+@theme {
+	--color-white: #ffffff;
+	--color-black: #000000;
+	--color-steel: #36443f;
+	--color-panel: var(--app-panel);
+	--color-line: var(--app-border);
+	--color-signal: var(--app-primary);
+	--color-alert: var(--tone-red-text);
+	--color-warning: var(--tone-amber-text);
+	--color-app-bg: var(--app-bg);
+	--color-app-surface: var(--app-surface);
+	--color-app-panel: var(--app-panel);
+	--color-app-elevated: var(--app-elevated);
+	--color-app-input: var(--app-input);
+	--color-app-hover: var(--app-hover);
+	--color-app-active: var(--app-active);
+	--color-app-border: var(--app-border);
+	--color-app-border-strong: var(--app-border-strong);
+	--color-app-text: var(--app-text);
+	--color-app-muted: var(--app-muted);
+	--color-app-subtle: var(--app-subtle);
+	--color-app-placeholder: var(--app-placeholder);
+	--color-app-primary: var(--app-primary);
+	--color-app-primary-hover: var(--app-primary-hover);
+	--color-app-on-primary: var(--app-on-primary);
+	--color-app-focus: var(--app-focus);
+	--color-app-skeleton: var(--app-skeleton);
+	--color-app-rail: var(--app-rail);
+	--color-app-rail-text: var(--app-rail-text);
+	--color-app-rail-muted: var(--app-rail-muted);
+	--color-app-accent-blue: var(--app-accent-blue);
+	--color-app-accent-copper: var(--app-accent-copper);
+	--color-tone-red-bg: var(--tone-red-bg);
+	--color-tone-red-border: var(--tone-red-border);
+	--color-tone-red-text: var(--tone-red-text);
+	--color-tone-amber-bg: var(--tone-amber-bg);
+	--color-tone-amber-border: var(--tone-amber-border);
+	--color-tone-amber-text: var(--tone-amber-text);
+	--color-tone-emerald-bg: var(--tone-emerald-bg);
+	--color-tone-emerald-border: var(--tone-emerald-border);
+	--color-tone-emerald-text: var(--tone-emerald-text);
+	--color-tone-teal-bg: var(--tone-teal-bg);
+	--color-tone-teal-border: var(--tone-teal-border);
+	--color-tone-teal-text: var(--tone-teal-text);
+	--color-tone-indigo-bg: var(--tone-indigo-bg);
+	--color-tone-indigo-border: var(--tone-indigo-border);
+	--color-tone-indigo-text: var(--tone-indigo-text);
+	--color-tone-slate-bg: var(--tone-slate-bg);
+	--color-tone-slate-border: var(--tone-slate-border);
+	--color-tone-slate-text: var(--tone-slate-text);
+	--shadow-panel: var(--app-shadow-panel);
+}
+
+:root {
+	color-scheme: light;
+	--font-sans:
+		"Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+	--font-mono: "Cascadia Mono", "Consolas", "SFMono-Regular", monospace;
+	--app-bg: #edf2ef;
+	--app-surface: #fbfcfb;
+	--app-panel: #f4f7f5;
+	--app-elevated: #ffffff;
+	--app-input: #ffffff;
+	--app-hover: #e7eeea;
+	--app-active: #101614;
+	--app-text: #101614;
+	--app-muted: #4b5a54;
+	--app-subtle: #76857f;
+	--app-placeholder: #98a6a0;
+	--app-border: #d4ded9;
+	--app-border-strong: #9baba4;
+	--app-scrollbar-thumb: #9baba4;
+	--app-scrollbar-thumb-hover: #76857f;
+	--app-scrollbar-track: transparent;
+	--app-primary: #08776d;
+	--app-primary-hover: #075e57;
+	--app-on-primary: #ffffff;
+	--app-focus: #00a58f;
+	--app-selection-bg: #bdf4ec;
+	--app-selection-text: #101614;
+	--app-rail: #101614;
+	--app-rail-text: #eef6f2;
+	--app-rail-muted: #9fb0a9;
+	--app-accent-blue: #2f63d9;
+	--app-accent-copper: #b25b16;
+	--app-shadow-panel: 0 18px 48px rgba(16, 22, 20, 0.11);
+	--app-shadow-tight: 0 1px 0 rgba(16, 22, 20, 0.05);
+	--app-skeleton: #dfe8e3;
+	--app-chart-1: #08776d;
+	--app-chart-2: #b25b16;
+	--app-chart-3: #b83a32;
+	--app-chart-4: #2f63d9;
+	--app-chart-5: #61736c;
+	--app-chart-grid: #dbe5e0;
+	--app-chart-axis: #61736c;
+	--app-graph-bg: #fafcfb;
+	--app-graph-edge: #6b7a74;
+	--app-minimap-mask: rgba(16, 22, 20, 0.09);
+	--tone-red-bg: #fff0ed;
+	--tone-red-border: #f4b7af;
+	--tone-red-text: #a92f2a;
+	--tone-amber-bg: #fff5df;
+	--tone-amber-border: #eec56f;
+	--tone-amber-text: #8a4a05;
+	--tone-emerald-bg: #e6f8ef;
+	--tone-emerald-border: #9adbb9;
+	--tone-emerald-text: #1d774a;
+	--tone-teal-bg: #def6f1;
+	--tone-teal-border: #7bd8cd;
+	--tone-teal-text: #08776d;
+	--tone-indigo-bg: #edf2ff;
+	--tone-indigo-border: #b9c8ff;
+	--tone-indigo-text: #2f63d9;
+	--tone-slate-bg: #eef3f0;
+	--tone-slate-border: #c7d2cd;
+	--tone-slate-text: #36443f;
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--app-bg: #0b100e;
+	--app-surface: #111815;
+	--app-panel: #17211d;
+	--app-elevated: #1d2824;
+	--app-input: #0e1512;
+	--app-hover: #22312b;
+	--app-active: #eef7f2;
+	--app-text: #eef7f2;
+	--app-muted: #b9c8c1;
+	--app-subtle: #91a39b;
+	--app-placeholder: #758882;
+	--app-border: #2b3a35;
+	--app-border-strong: #4a5e55;
+	--app-scrollbar-thumb: #4a5e55;
+	--app-scrollbar-thumb-hover: #6f857c;
+	--app-scrollbar-track: transparent;
+	--app-primary: #4cd6c8;
+	--app-primary-hover: #79eee3;
+	--app-on-primary: #05201d;
+	--app-focus: #4cd6c8;
+	--app-selection-bg: rgba(72, 216, 203, 0.34);
+	--app-selection-text: #eef7f2;
+	--app-rail: #070b09;
+	--app-rail-text: #eef7f2;
+	--app-rail-muted: #90a49b;
+	--app-accent-blue: #92b1ff;
+	--app-accent-copper: #f2a34a;
+	--app-shadow-panel: 0 20px 54px rgba(0, 0, 0, 0.34);
+	--app-shadow-tight: 0 1px 0 rgba(255, 255, 255, 0.04);
+	--app-skeleton: #263530;
+	--app-chart-1: #4cd6c8;
+	--app-chart-2: #f2a34a;
+	--app-chart-3: #ff7d70;
+	--app-chart-4: #92b1ff;
+	--app-chart-5: #9baea6;
+	--app-chart-grid: #30413b;
+	--app-chart-axis: #9caea7;
+	--app-graph-bg: #0f1714;
+	--app-graph-edge: #879b94;
+	--app-minimap-mask: rgba(0, 0, 0, 0.3);
+	--tone-red-bg: rgba(126, 40, 33, 0.32);
+	--tone-red-border: rgba(255, 122, 108, 0.46);
+	--tone-red-text: #ffaaa1;
+	--tone-amber-bg: rgba(111, 64, 0, 0.3);
+	--tone-amber-border: rgba(243, 165, 58, 0.46);
+	--tone-amber-text: #ffd37c;
+	--tone-emerald-bg: rgba(27, 91, 62, 0.32);
+	--tone-emerald-border: rgba(89, 207, 143, 0.44);
+	--tone-emerald-text: #9be7b8;
+	--tone-teal-bg: rgba(18, 92, 86, 0.34);
+	--tone-teal-border: rgba(72, 216, 203, 0.46);
+	--tone-teal-text: #84efe4;
+	--tone-indigo-bg: rgba(49, 72, 148, 0.34);
+	--tone-indigo-border: rgba(148, 178, 255, 0.48);
+	--tone-indigo-text: #c4d3ff;
+	--tone-slate-bg: rgba(75, 91, 84, 0.32);
+	--tone-slate-border: rgba(155, 174, 166, 0.38);
+	--tone-slate-text: #d0ded8;
+}
+
+* {
+	box-sizing: border-box;
+	scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
+	scrollbar-width: thin;
+}
+
+html {
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	background: var(--app-bg);
+	color: var(--app-text);
+	font-family: var(--font-sans), system-ui, sans-serif;
+	font-size: 15px;
+	transition:
+		background-color 150ms ease,
+		color 150ms ease;
+}
+
+a {
+	text-decoration: none;
+}
+
+.skip-link {
+	position: fixed;
+	left: 1rem;
+	top: 1rem;
+	z-index: 100;
+	transform: translateY(-150%);
+	border: 1px solid var(--app-border);
+	border-radius: 8px;
+	background: var(--app-elevated);
+	color: var(--app-text);
+	padding: 0.65rem 0.9rem;
+	font-size: 0.875rem;
+	font-weight: 700;
+	box-shadow: var(--app-shadow-panel);
+	transition: transform 150ms ease;
+}
+
+.skip-link:focus-visible {
+	transform: translateY(0);
+}
+
+button,
+input,
+textarea,
+select {
+	font: inherit;
+}
+
+svg {
+	flex-shrink: 0;
+}
+
+a,
+[role="button"],
+[role="checkbox"],
+[role="combobox"],
+[role="option"] {
+	outline-offset: 2px;
+}
+
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="combobox"]:focus-visible,
+[role="option"]:focus-visible {
+	outline: 2px solid var(--app-focus);
+}
+
+::selection {
+	background: var(--app-selection-bg);
+	color: var(--app-selection-text);
+}
+
+::placeholder {
+	color: var(--app-placeholder);
+}
+
+::-webkit-scrollbar {
+	height: 10px;
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--app-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--app-scrollbar-thumb);
+	border: 3px solid transparent;
+	border-radius: 8px;
+	background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--app-scrollbar-thumb-hover);
+	border: 3px solid transparent;
+	background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.app-rail-scrollbar {
+	scrollbar-color: rgba(238, 246, 242, 0.34) transparent;
+}
+
+.app-rail-scrollbar::-webkit-scrollbar-track {
+	background: var(--app-rail);
+}
+
+.app-rail-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(238, 246, 242, 0.28);
+	border: 3px solid var(--app-rail);
+	border-radius: 8px;
+	background-clip: content-box;
+}
+
+.app-rail-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: rgba(238, 246, 242, 0.46);
+	border: 3px solid var(--app-rail);
+	background-clip: content-box;
+}
+
+@media print {
+	body {
+		background: white;
+	}
+
+	.print-hidden {
+		display: none !important;
+	}
+
+	.print-card {
+		box-shadow: none !important;
+		border: 1px solid #cbd5e1 !important;
+		break-inside: avoid;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+		transition-duration: 0.001ms !important;
+	}
+}
+
+.react-flow .react-flow__edges {
+	z-index: 1;
+}
+
+.react-flow .react-flow__nodes {
+	z-index: 2;
+}
+
+.react-flow__node {
+	border-radius: 6px;
+	border: 1px solid var(--app-border);
+	background: var(--app-surface);
+	color: var(--app-text);
+	font-size: 12px;
+	transition:
+		background-color 150ms ease,
+		border-color 150ms ease,
+		box-shadow 150ms ease,
+		color 150ms ease;
+}
+
+.react-flow__edge-text {
+	font-size: 10px;
+	fill: var(--app-muted);
+	paint-order: stroke;
+	stroke: var(--app-surface);
+	stroke-width: 4px;
+}
+
+.react-flow__minimap {
+	box-shadow: var(--app-shadow-panel);
+}
+
+.react-flow__attribution {
+	display: none;
+}
+
+.app-noise {
+	display: none;
+}
+
+:root[data-theme="dark"] .app-noise {
+	display: none;
+}

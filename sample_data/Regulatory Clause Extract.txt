@@ -1,0 +1,4 @@
+Regulatory Clause Extract
+Clause 7.2: Compressor safety inspections must be documented at the defined interval and include supervisor sign-off.
+Clause 8.4: Energy isolation for boiler service must include LOTO, Permit To Work, pressure release verification, and gas test when flammable gas is possible.
+Clause 9.1: Spare parts below minimum stock for safety critical equipment require corrective action before planned maintenance.

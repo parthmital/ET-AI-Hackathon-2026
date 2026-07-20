@@ -1,0 +1,10 @@
+Factory Safety Compliance Checklist
+
+Boiler B-12 service requires LOTO, Permit To Work, flame-resistant clothing, face shield, heat-resistant gloves, portable gas detector, and confined-space permit if applicable.
+
+Compressor C-204 inspection record must be present every 60 days with supervisor sign-off.
+
+Pump P-101 seal replacement requires isolation, stored pressure release, and spare mechanical seal availability.
+
+Detected gap: C-204 overdue inspection and missing supervisor sign-off.
+

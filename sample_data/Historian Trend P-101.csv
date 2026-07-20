@@ -1,0 +1,5 @@
+Timestamp,Asset,Signal,Value,Unit
+2026-05-31T08:00:00,P-101,vibration,6.8,mm/s
+2026-06-01T08:00:00,P-101,vibration,7.9,mm/s
+2026-06-02T08:00:00,P-101,vibration,8.2,mm/s
+2026-06-02T08:00:00,C-204,ambient temperature,41.0,C

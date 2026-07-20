@@ -1,0 +1,1232 @@
+{
+	"name": "Industrial Ops Brain Evidence Benchmark",
+	"description": "Deterministic benchmark over the complete repository sample_data corpus. It parses real files, builds an offline retrieval baseline, validates expected QA evidence, source citations, grounded answer claims, no-answer controls, entity recall, numeric and tabular logic, compliance gaps, contradiction pairs, RCA evidence, graph links, graph validation, parser coverage, source coverage, and latency without calling an LLM or mutating the database.",
+	"source_documents": [
+		"sample_data/Boiler B-12 Safety SOP.txt",
+		"sample_data/Compressor C-204 Maintenance Log.txt",
+		"sample_data/Contradiction Log P-101.txt",
+		"sample_data/Factory Safety Compliance Checklist.txt",
+		"sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+		"sample_data/Historian Trend P-101.csv",
+		"sample_data/Incident Report Pump P-101 Seal Failure.txt",
+		"sample_data/P&ID Extract Unit 1.pdf",
+		"sample_data/Pump P-101 OEM Manual.txt",
+		"sample_data/Pump P-101 Quick Maintenance Guide.docx",
+		"sample_data/Regulatory Clause Extract.txt",
+		"sample_data/Scanned C-204 Inspection Form.pdf",
+		"sample_data/Sensor Anomaly Events.csv",
+		"sample_data/Shift Handover Log Unit 1.txt",
+		"sample_data/Spare Parts Inventory.csv",
+		"sample_data/Vendor Service Report P-101.txt",
+		"sample_data/Work Order History.xlsx"
+	],
+	"quality_gates": {
+		"minimum_score": 1.0,
+		"minimum_citation_hit_rate": 1.0,
+		"minimum_answer_snippet_hit_rate": 1.0,
+		"minimum_retrieval_context_precision": 0.45,
+		"minimum_retrieval_context_recall": 0.75,
+		"minimum_retrieval_mrr": 0.45,
+		"minimum_retrieval_ndcg_at_k": 0.7,
+		"minimum_grounded_answer_claim_f1": 1.0,
+		"minimum_grounding_citation_coverage": 1.0,
+		"minimum_abstention_accuracy": 1.0,
+		"minimum_entity_precision": 1.0,
+		"minimum_entity_recall": 1.0,
+		"minimum_numeric_reasoning_accuracy": 1.0,
+		"minimum_compliance_gap_accuracy": 1.0,
+		"minimum_contradiction_pair_accuracy": 1.0,
+		"minimum_rca_evidence_accuracy": 1.0,
+		"minimum_graph_link_completeness": 1.0,
+		"minimum_graph_validation_accuracy": 1.0,
+		"minimum_parser_contract_coverage": 1.0,
+		"minimum_source_document_coverage": 1.0,
+		"minimum_source_format_coverage": 1.0,
+		"minimum_source_document_count": 17,
+		"minimum_source_format_count": 5,
+		"minimum_category_count": 12,
+		"minimum_check_count": 65,
+		"maximum_total_latency_ms": 10000,
+		"maximum_parse_latency_ms": 7000,
+		"maximum_p95_check_latency_ms": 25
+	},
+	"qa_checks": [
+		{
+			"id": "qa-p101-seal-failure",
+			"question": "What evidence explains the P-101 seal failure?",
+			"expected_answer_terms": [
+				"seal leakage",
+				"bearing wear",
+				"shaft misalignment",
+				"inadequate lubrication"
+			],
+			"expected_citation": {
+				"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+				"page": 1,
+				"contains": ["P-101", "seal failure", "bearing wear"]
+			}
+		},
+		{
+			"id": "qa-p101-vibration-limit",
+			"question": "What vibration threshold should stop continuous P-101 operation?",
+			"expected_answer_terms": ["7 mm/s", "High vibration", "bearing wear"],
+			"expected_citation": {
+				"file": "sample_data/Pump P-101 OEM Manual.txt",
+				"page": 1,
+				"contains": ["vibration threshold", "7 mm/s"]
+			}
+		},
+		{
+			"id": "qa-c204-inspection-gap",
+			"question": "Why is C-204 a compliance concern?",
+			"expected_answer_terms": [
+				"every 60 days",
+				"not found",
+				"Supervisor sign-off missing"
+			],
+			"expected_citation": {
+				"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+				"page": 1,
+				"contains": ["C-204", "2026-05-15", "Supervisor sign-off missing"]
+			}
+		},
+		{
+			"id": "qa-b12-energy-isolation",
+			"question": "Which controls are required before Boiler B-12 service?",
+			"expected_answer_terms": [
+				"LOTO",
+				"Permit To Work",
+				"zero stored pressure"
+			],
+			"expected_citation": {
+				"file": "sample_data/Boiler B-12 Safety SOP.txt",
+				"page": 1,
+				"contains": ["Boiler B-12", "LOTO", "Permit To Work"]
+			}
+		},
+		{
+			"id": "qa-sensor-anomaly",
+			"question": "Which sensor anomalies were recorded on 2026-06-03?",
+			"expected_answer_terms": [
+				"vibration",
+				"8.9",
+				"discharge temperature",
+				"118"
+			],
+			"expected_citation": {
+				"file": "sample_data/Sensor Anomaly Events.csv",
+				"page": 1,
+				"contains": ["vibration", "alarm", "discharge temperature"]
+			}
+		},
+		{
+			"id": "qa-p101-spare-stockout",
+			"question": "Which P-101 spare part is below minimum stock?",
+			"expected_answer_terms": ["mechanical seal", "Stockout", "MinimumQty"],
+			"expected_citation": {
+				"file": "sample_data/Spare Parts Inventory.csv",
+				"page": 1,
+				"contains": ["mechanical seal", "P-101", "Stockout"]
+			}
+		},
+		{
+			"id": "qa-p101-quick-guide-actions",
+			"question": "What actions does the quick guide require after repeated high vibration on P-101?",
+			"expected_answer_terms": [
+				"bearing inspection",
+				"lubrication check",
+				"shaft alignment verification"
+			],
+			"expected_citation": {
+				"file": "sample_data/Pump P-101 Quick Maintenance Guide.docx",
+				"page": 1,
+				"contains": [
+					"Repeated high vibration",
+					"bearing inspection",
+					"shaft alignment verification"
+				]
+			}
+		},
+		{
+			"id": "qa-hx22-inspection-outcome",
+			"question": "What was found during the HX-22 inspection?",
+			"expected_answer_terms": [
+				"mild tube fouling",
+				"gasket set wear",
+				"Cleaning completed"
+			],
+			"expected_citation": {
+				"file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+				"page": 1,
+				"contains": ["HX-22", "mild tube fouling", "gasket set wear"]
+			}
+		}
+	],
+	"retrieval_checks": [
+		{
+			"id": "ret-p101-seal-failure-causal-chain",
+			"query": "P-101 seal failure bearing wear shaft misalignment inadequate lubrication evidence",
+			"top_k": 6,
+			"minimum_context_recall": 0.75,
+			"minimum_context_precision": 0.45,
+			"minimum_mrr": 0.5,
+			"minimum_ndcg_at_k": 0.7,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+					"page": 1,
+					"contains": ["seal leakage", "bearing wear", "shaft misalignment"]
+				},
+				{
+					"file": "sample_data/Vendor Service Report P-101.txt",
+					"page": 1,
+					"contains": [
+						"thermal distress",
+						"bearing wear marks",
+						"shaft alignment"
+					]
+				},
+				{
+					"file": "sample_data/Pump P-101 Quick Maintenance Guide.docx",
+					"page": 1,
+					"contains": ["seal leakage", "bearing wear", "inadequate lubrication"]
+				},
+				{
+					"file": "sample_data/Work Order History.xlsx",
+					"page": 1,
+					"contains": ["WO-1260", "Seal leakage", "bearing wear"]
+				}
+			]
+		},
+		{
+			"id": "ret-p101-vibration-threshold-actions",
+			"query": "P-101 vibration above 7 mm/s threshold stop operation alignment lubrication bearing kit",
+			"top_k": 5,
+			"minimum_context_recall": 0.75,
+			"minimum_context_precision": 0.45,
+			"minimum_mrr": 0.5,
+			"minimum_ndcg_at_k": 0.7,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Pump P-101 OEM Manual.txt",
+					"page": 1,
+					"contains": ["vibration threshold", "7 mm/s", "bearing wear"]
+				},
+				{
+					"file": "sample_data/Pump P-101 Quick Maintenance Guide.docx",
+					"page": 1,
+					"contains": [
+						"Repeated high vibration",
+						"7 mm/s",
+						"shaft alignment verification"
+					]
+				},
+				{
+					"file": "sample_data/Shift Handover Log Unit 1.txt",
+					"page": 1,
+					"contains": ["8.0 mm/s", "alignment check", "lubrication history"]
+				},
+				{
+					"file": "sample_data/Historian Trend P-101.csv",
+					"page": 1,
+					"contains": ["P-101", "vibration", "8.2"]
+				}
+			]
+		},
+		{
+			"id": "ret-c204-compliance-overdue",
+			"query": "C-204 overdue inspection every 60 days supervisor sign-off compliance evidence",
+			"top_k": 5,
+			"minimum_context_recall": 0.67,
+			"minimum_context_precision": 0.4,
+			"minimum_mrr": 0.5,
+			"minimum_ndcg_at_k": 0.65,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+					"page": 1,
+					"contains": [
+						"every 60 days",
+						"not found",
+						"Supervisor sign-off missing"
+					]
+				},
+				{
+					"file": "sample_data/Factory Safety Compliance Checklist.txt",
+					"page": 1,
+					"contains": [
+						"C-204",
+						"overdue inspection",
+						"missing supervisor sign-off"
+					]
+				},
+				{
+					"file": "sample_data/Regulatory Clause Extract.txt",
+					"page": 1,
+					"contains": [
+						"Compressor safety inspections",
+						"defined interval",
+						"supervisor sign-off"
+					]
+				}
+			]
+		},
+		{
+			"id": "ret-b12-energy-isolation",
+			"query": "Boiler B-12 energy isolation LOTO Permit To Work pressure release gas test",
+			"top_k": 5,
+			"minimum_context_recall": 1.0,
+			"minimum_context_precision": 0.45,
+			"minimum_mrr": 1.0,
+			"minimum_ndcg_at_k": 0.8,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Boiler B-12 Safety SOP.txt",
+					"page": 1,
+					"contains": ["LOTO", "Permit To Work", "zero stored pressure"]
+				},
+				{
+					"file": "sample_data/Factory Safety Compliance Checklist.txt",
+					"page": 1,
+					"contains": ["Boiler B-12", "LOTO", "confined-space permit"]
+				},
+				{
+					"file": "sample_data/Regulatory Clause Extract.txt",
+					"page": 1,
+					"contains": [
+						"Energy isolation",
+						"pressure release verification",
+						"gas test"
+					]
+				}
+			]
+		},
+		{
+			"id": "ret-p101-critical-spare-stockout",
+			"query": "P-101 mechanical seal Stockout AvailableQty MinimumQty spare parts corrective action planned maintenance",
+			"top_k": 5,
+			"minimum_context_recall": 1.0,
+			"minimum_context_precision": 0.45,
+			"minimum_mrr": 1.0,
+			"minimum_ndcg_at_k": 0.8,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Spare Parts Inventory.csv",
+					"page": 1,
+					"contains": ["mechanical seal", "P-101", "Stockout"]
+				},
+				{
+					"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+					"page": 1,
+					"contains": [
+						"mechanical seal stockout",
+						"temporary operation",
+						"degraded seal condition"
+					]
+				},
+				{
+					"file": "sample_data/Regulatory Clause Extract.txt",
+					"page": 1,
+					"contains": ["Spare parts below minimum stock", "corrective action"]
+				}
+			]
+		},
+		{
+			"id": "ret-hx22-inspection-loop",
+			"query": "HX-22 inspection tube fouling gasket set cooling water line work order WO-3102",
+			"top_k": 5,
+			"minimum_context_recall": 1.0,
+			"minimum_context_precision": 0.45,
+			"minimum_mrr": 1.0,
+			"minimum_ndcg_at_k": 0.8,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+					"page": 1,
+					"contains": ["HX-22", "mild tube fouling", "WO-3102"]
+				},
+				{
+					"file": "sample_data/Work Order History.xlsx",
+					"page": 1,
+					"contains": ["WO-3102", "HX-22", "Tube fouling cleaned"]
+				},
+				{
+					"file": "sample_data/P&ID Extract Unit 1.pdf",
+					"page": 1,
+					"contains": ["HX-22", "Cooling water line"]
+				}
+			]
+		},
+		{
+			"id": "ret-c204-temperature-anomaly",
+			"query": "C-204 discharge temperature 118 overheating high ambient temperature current draw",
+			"top_k": 5,
+			"minimum_context_recall": 1.0,
+			"minimum_context_precision": 0.4,
+			"minimum_mrr": 0.5,
+			"minimum_ndcg_at_k": 0.75,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/Sensor Anomaly Events.csv",
+					"page": 1,
+					"contains": ["C-204", "discharge temperature", "118"]
+				},
+				{
+					"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+					"page": 1,
+					"contains": ["overheating", "high ambient temperature"]
+				},
+				{
+					"file": "sample_data/Historian Trend P-101.csv",
+					"page": 1,
+					"contains": ["C-204", "ambient temperature", "41.0"]
+				}
+			]
+		},
+		{
+			"id": "ret-pid-line-break-loto",
+			"query": "Unit 1 P&ID VLV-101 line break LOTO permit control P-101 HX-22",
+			"top_k": 5,
+			"minimum_context_recall": 0.67,
+			"minimum_context_precision": 0.4,
+			"minimum_mrr": 1.0,
+			"minimum_ndcg_at_k": 0.75,
+			"relevant_contexts": [
+				{
+					"file": "sample_data/P&ID Extract Unit 1.pdf",
+					"page": 1,
+					"contains": ["P&ID Extract Unit 1", "VLV-101", "LOTO"]
+				},
+				{
+					"file": "sample_data/Factory Safety Compliance Checklist.txt",
+					"page": 1,
+					"contains": ["LOTO", "Permit To Work"]
+				}
+			]
+		}
+	],
+	"grounded_answer_checks": [
+		{
+			"id": "ground-p101-seal-failure-claims",
+			"question": "Explain the P-101 seal failure using only cited evidence.",
+			"claims": [
+				{
+					"claim": "P-101 vibration crossed 8.2 mm/s before seal failure.",
+					"terms": ["P-101", "8.2 mm/s", "seal failure"],
+					"evidence": [
+						{
+							"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+							"page": 1,
+							"contains": ["vibration crossed 8.2 mm/s", "seal failure"]
+						}
+					]
+				},
+				{
+					"claim": "Likely failure causes are bearing wear, shaft misalignment, and inadequate lubrication.",
+					"terms": [
+						"bearing wear",
+						"shaft misalignment",
+						"inadequate lubrication"
+					],
+					"evidence": [
+						{
+							"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+							"page": 1,
+							"contains": [
+								"bearing wear",
+								"shaft misalignment",
+								"inadequate lubrication"
+							]
+						},
+						{
+							"file": "sample_data/Pump P-101 OEM Manual.txt",
+							"page": 1,
+							"contains": [
+								"High vibration",
+								"bearing wear",
+								"shaft misalignment"
+							]
+						}
+					]
+				},
+				{
+					"claim": "The response should recommend inspecting the bearing kit and verifying alignment.",
+					"terms": ["inspect bearing kit", "verify alignment"],
+					"evidence": [
+						{
+							"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+							"page": 1,
+							"contains": ["inspect bearing kit", "verify alignment"]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "ground-c204-compliance-claims",
+			"question": "Summarise the C-204 compliance issue with evidence.",
+			"claims": [
+				{
+					"claim": "C-204 requires inspection every 60 days.",
+					"terms": ["C-204", "every 60 days"],
+					"evidence": [
+						{
+							"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+							"page": 1,
+							"contains": ["C-204", "every 60 days"]
+						}
+					]
+				},
+				{
+					"claim": "The 2026-05-15 inspection record was not found and supervisor sign-off was missing.",
+					"terms": ["2026-05-15", "not found", "Supervisor sign-off missing"],
+					"evidence": [
+						{
+							"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+							"page": 1,
+							"contains": [
+								"2026-05-15",
+								"not found",
+								"Supervisor sign-off missing"
+							]
+						}
+					]
+				},
+				{
+					"claim": "Regulatory evidence requires compressor inspections to include supervisor sign-off.",
+					"terms": ["Compressor safety inspections", "supervisor sign-off"],
+					"evidence": [
+						{
+							"file": "sample_data/Regulatory Clause Extract.txt",
+							"page": 1,
+							"contains": [
+								"Compressor safety inspections",
+								"supervisor sign-off"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "ground-b12-energy-isolation-claims",
+			"question": "List the Boiler B-12 safety controls with evidence.",
+			"claims": [
+				{
+					"claim": "Boiler B-12 service requires LOTO, Permit To Work, and zero stored pressure verification.",
+					"terms": [
+						"Boiler B-12",
+						"LOTO",
+						"Permit To Work",
+						"zero stored pressure"
+					],
+					"evidence": [
+						{
+							"file": "sample_data/Boiler B-12 Safety SOP.txt",
+							"page": 1,
+							"contains": [
+								"Boiler B-12",
+								"LOTO",
+								"Permit To Work",
+								"zero stored pressure"
+							]
+						}
+					]
+				},
+				{
+					"claim": "Gas testing is required when flammable gas is possible.",
+					"terms": ["gas test", "flammable gas"],
+					"evidence": [
+						{
+							"file": "sample_data/Regulatory Clause Extract.txt",
+							"page": 1,
+							"contains": ["gas test", "flammable gas"]
+						}
+					]
+				},
+				{
+					"claim": "Required PPE includes flame-resistant clothing, face shield, heat-resistant gloves, safety shoes, and a portable gas detector.",
+					"terms": [
+						"flame-resistant clothing",
+						"face shield",
+						"heat-resistant gloves",
+						"safety shoes",
+						"portable gas detector"
+					],
+					"evidence": [
+						{
+							"file": "sample_data/Boiler B-12 Safety SOP.txt",
+							"page": 1,
+							"contains": [
+								"flame-resistant clothing",
+								"face shield",
+								"portable gas detector"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "ground-p101-stockout-claims",
+			"question": "Explain why the P-101 mechanical seal stockout matters.",
+			"claims": [
+				{
+					"claim": "The P-101 mechanical seal has zero available quantity against a minimum quantity of two.",
+					"terms": ["mechanical seal", "P-101", "0", "2", "Stockout"],
+					"evidence": [
+						{
+							"file": "sample_data/Spare Parts Inventory.csv",
+							"page": 1,
+							"contains": ["mechanical seal", "P-101", "Stockout"]
+						}
+					]
+				},
+				{
+					"claim": "Spare parts below minimum stock require corrective action before planned maintenance.",
+					"terms": [
+						"Spare parts below minimum stock",
+						"corrective action",
+						"planned maintenance"
+					],
+					"evidence": [
+						{
+							"file": "sample_data/Regulatory Clause Extract.txt",
+							"page": 1,
+							"contains": [
+								"Spare parts below minimum stock",
+								"corrective action",
+								"planned maintenance"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "ground-hx22-inspection-claims",
+			"question": "Summarise the HX-22 inspection.",
+			"claims": [
+				{
+					"claim": "HX-22 inspection found mild tube fouling and gasket set wear.",
+					"terms": ["HX-22", "mild tube fouling", "gasket set wear"],
+					"evidence": [
+						{
+							"file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+							"page": 1,
+							"contains": ["HX-22", "mild tube fouling", "gasket set wear"]
+						}
+					]
+				},
+				{
+					"claim": "Cleaning was completed under WO-3102 and no immediate safety hazard was observed.",
+					"terms": [
+						"Cleaning completed",
+						"WO-3102",
+						"No immediate safety hazard observed"
+					],
+					"evidence": [
+						{
+							"file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+							"page": 1,
+							"contains": [
+								"Cleaning completed",
+								"WO-3102",
+								"No immediate safety hazard observed"
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"abstention_checks": [
+		{
+			"id": "abstain-unknown-asset-p999",
+			"query": "What is the inspection status for P-999?",
+			"absent_terms": ["P-999"],
+			"top_k": 3,
+			"maximum_top_score": 20
+		},
+		{
+			"id": "abstain-unknown-pressure-vessel",
+			"query": "Show pressure vessel PV-900 permit history and last hydrotest.",
+			"absent_terms": ["PV-900", "hydrotest"],
+			"top_k": 3,
+			"maximum_top_score": 20
+		},
+		{
+			"id": "abstain-future-p101-event",
+			"query": "What happened to P-101 on 2027-01-01?",
+			"absent_terms": ["2027-01-01"],
+			"top_k": 3,
+			"maximum_top_score": 25
+		}
+	],
+	"entity_checks": [
+		{
+			"id": "entity-p101-equipment",
+			"entity_type": "Equipment",
+			"value": "P-101",
+			"source_file": "sample_data/Pump P-101 OEM Manual.txt",
+			"contains": ["P-101", "Centrifugal Process Pump"]
+		},
+		{
+			"id": "entity-c204-equipment",
+			"entity_type": "Equipment",
+			"value": "C-204",
+			"source_file": "sample_data/Compressor C-204 Maintenance Log.txt",
+			"contains": ["C-204", "Instrument Air Compressor"]
+		},
+		{
+			"id": "entity-b12-equipment",
+			"entity_type": "Equipment",
+			"value": "B-12",
+			"source_file": "sample_data/Boiler B-12 Safety SOP.txt",
+			"contains": ["B-12", "Package Boiler"]
+		},
+		{
+			"id": "entity-hx22-equipment",
+			"entity_type": "Equipment",
+			"value": "HX-22",
+			"source_file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+			"contains": ["HX-22", "Cooling Water Heat Exchanger"]
+		},
+		{
+			"id": "entity-wo1201-work-order",
+			"entity_type": "Work Order",
+			"value": "WO-1201",
+			"source_file": "sample_data/Pump P-101 OEM Manual.txt",
+			"contains": ["WO-1201", "vibration warning"]
+		},
+		{
+			"id": "entity-wo1260-work-order",
+			"entity_type": "Work Order",
+			"value": "WO-1260",
+			"source_file": "sample_data/Pump P-101 Quick Maintenance Guide.docx",
+			"contains": ["WO-1260", "seal leakage", "bearing wear"]
+		},
+		{
+			"id": "entity-api610-regulation",
+			"entity_type": "Regulation",
+			"value": "API 610",
+			"source_file": "sample_data/Vendor Service Report P-101.txt",
+			"contains": ["API 610"]
+		},
+		{
+			"id": "entity-iso45001-regulation",
+			"entity_type": "Regulation",
+			"value": "ISO 45001",
+			"source_file": "sample_data/Boiler B-12 Safety SOP.txt",
+			"contains": ["ISO 45001", "Regulatory reference"]
+		},
+		{
+			"id": "entity-vibration-signal",
+			"entity_type": "Historian Signal",
+			"value": "vibration",
+			"source_file": "sample_data/Sensor Anomaly Events.csv",
+			"contains": ["vibration", "mm/s"]
+		},
+		{
+			"id": "entity-mechanical-seal-spare",
+			"entity_type": "Spare Part",
+			"value": "mechanical seal",
+			"source_file": "sample_data/Spare Parts Inventory.csv",
+			"contains": ["mechanical seal", "Stockout"]
+		},
+		{
+			"id": "entity-loto-control",
+			"entity_type": "Permit Control",
+			"value": "LOTO",
+			"source_file": "sample_data/Boiler B-12 Safety SOP.txt",
+			"contains": ["LOTO", "Permit To Work"]
+		},
+		{
+			"id": "entity-vlv101-valve",
+			"entity_type": "Process Parameter",
+			"value": "VLV-101",
+			"source_file": "sample_data/P&ID Extract Unit 1.pdf",
+			"contains": ["VLV-101", "LOTO"]
+		}
+	],
+	"numeric_checks": [
+		{
+			"id": "numeric-p101-historian-vibration-breach",
+			"calculation": "threshold_breach",
+			"file": "sample_data/Historian Trend P-101.csv",
+			"asset": "P-101",
+			"signal": "vibration",
+			"operator": ">",
+			"threshold": 7,
+			"unit": "mm/s",
+			"expected_breach_count": 2,
+			"expected_peak": 8.2,
+			"evidence_terms": ["P-101", "vibration", "8.2"]
+		},
+		{
+			"id": "numeric-p101-sensor-vibration-alarm",
+			"calculation": "threshold_breach",
+			"file": "sample_data/Sensor Anomaly Events.csv",
+			"asset": "P-101",
+			"signal": "vibration",
+			"operator": ">",
+			"threshold": 7,
+			"unit": "mm/s",
+			"expected_breach_count": 1,
+			"expected_peak": 8.9,
+			"evidence_terms": ["P-101", "vibration", "8.9", "alarm"]
+		},
+		{
+			"id": "numeric-p101-vibration-trend-increase",
+			"calculation": "trend_increase",
+			"file": "sample_data/Historian Trend P-101.csv",
+			"asset": "P-101",
+			"signal": "vibration",
+			"expected_delta_min": 1.4,
+			"evidence_terms": ["6.8", "7.9", "8.2"]
+		},
+		{
+			"id": "numeric-p101-mechanical-seal-stock-minimum",
+			"calculation": "stock_minimum",
+			"file": "sample_data/Spare Parts Inventory.csv",
+			"part": "mechanical seal",
+			"asset": "P-101",
+			"expected_status": "Stockout",
+			"evidence_terms": ["mechanical seal", "0", "2", "Stockout"]
+		},
+		{
+			"id": "numeric-c204-inspection-date-gap",
+			"calculation": "date_gap",
+			"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+			"completed_dates": ["2026-01-10", "2026-03-12"],
+			"required_interval_days": 60,
+			"expected_missing_date": "2026-05-15",
+			"gap_terms": ["inspection record expected", "not found"],
+			"evidence_terms": [
+				"2026-05-15",
+				"not found",
+				"Supervisor sign-off missing"
+			]
+		}
+	],
+	"compliance_checks": [
+		{
+			"id": "compliance-c204-overdue-inspection",
+			"asset_id": "C-204",
+			"gap_type": "Overdue Inspection",
+			"expected_severity": "High",
+			"evidence": [
+				{
+					"file": "sample_data/Factory Safety Compliance Checklist.txt",
+					"page": 1,
+					"contains": [
+						"C-204",
+						"overdue inspection",
+						"missing supervisor sign-off"
+					]
+				}
+			]
+		},
+		{
+			"id": "compliance-c204-frequency",
+			"asset_id": "C-204",
+			"gap_type": "Inspection Frequency",
+			"expected_severity": "High",
+			"evidence": [
+				{
+					"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+					"page": 1,
+					"contains": [
+						"Required inspection frequency",
+						"every 60 days",
+						"not found"
+					]
+				}
+			]
+		},
+		{
+			"id": "compliance-p101-critical-spare-stockout",
+			"asset_id": "P-101",
+			"gap_type": "Critical Spare Stockout",
+			"expected_severity": "Medium",
+			"evidence": [
+				{
+					"file": "sample_data/Spare Parts Inventory.csv",
+					"page": 1,
+					"contains": ["mechanical seal", "P-101", "Stockout"]
+				},
+				{
+					"file": "sample_data/Regulatory Clause Extract.txt",
+					"page": 1,
+					"contains": ["Spare parts below minimum stock", "corrective action"]
+				}
+			]
+		},
+		{
+			"id": "compliance-p101-restart-authorisation",
+			"asset_id": "P-101",
+			"gap_type": "Restart Authorisation Conflict",
+			"expected_severity": "High",
+			"evidence": [
+				{
+					"file": "sample_data/Contradiction Log P-101.txt",
+					"page": 1,
+					"contains": ["ready for restart", "lockout", "supervisor sign-off"]
+				}
+			]
+		},
+		{
+			"id": "compliance-b12-energy-isolation-controls",
+			"asset_id": "B-12",
+			"gap_type": "Energy Isolation Control Requirement",
+			"expected_severity": "High",
+			"evidence": [
+				{
+					"file": "sample_data/Boiler B-12 Safety SOP.txt",
+					"page": 1,
+					"contains": ["LOTO", "zero stored pressure", "Permit To Work"]
+				},
+				{
+					"file": "sample_data/Regulatory Clause Extract.txt",
+					"page": 1,
+					"contains": [
+						"Energy isolation",
+						"pressure release verification",
+						"gas test"
+					]
+				}
+			]
+		}
+	],
+	"contradiction_checks": [
+		{
+			"id": "contradiction-p101-restart-lockout",
+			"asset_id": "P-101",
+			"conflict_terms": ["ready for restart", "lockout", "reconciliation"],
+			"evidence": [
+				{
+					"file": "sample_data/Contradiction Log P-101.txt",
+					"page": 1,
+					"contains": ["ready for restart", "WO-7841"]
+				},
+				{
+					"file": "sample_data/Contradiction Log P-101.txt",
+					"page": 1,
+					"contains": ["under lockout", "supervisor sign-off"]
+				}
+			]
+		},
+		{
+			"id": "contradiction-p101-operating-above-threshold",
+			"asset_id": "P-101",
+			"conflict_terms": [
+				"shall not operate continuously above",
+				"temporary operation",
+				"degraded seal condition"
+			],
+			"evidence": [
+				{
+					"file": "sample_data/Pump P-101 OEM Manual.txt",
+					"page": 1,
+					"contains": ["shall not operate continuously above", "7 mm/s"]
+				},
+				{
+					"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+					"page": 1,
+					"contains": ["temporary operation", "degraded seal condition"]
+				}
+			]
+		},
+		{
+			"id": "contradiction-p101-spare-availability",
+			"asset_id": "P-101",
+			"conflict_terms": ["must be available", "Stockout", "mechanical seal"],
+			"evidence": [
+				{
+					"file": "sample_data/Pump P-101 OEM Manual.txt",
+					"page": 1,
+					"contains": ["Mechanical seal", "must be available"]
+				},
+				{
+					"file": "sample_data/Spare Parts Inventory.csv",
+					"page": 1,
+					"contains": ["mechanical seal", "Stockout"]
+				}
+			]
+		}
+	],
+	"rca_checks": [
+		{
+			"id": "rca-p101-seal-leakage",
+			"asset_id": "P-101",
+			"symptom": "Seal leakage after high vibration alarms",
+			"likely_cause_terms": [
+				"bearing wear",
+				"shaft misalignment",
+				"inadequate lubrication"
+			],
+			"recommended_check_terms": ["inspect bearing kit", "verify alignment"],
+			"evidence": [
+				{
+					"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+					"page": 1,
+					"contains": ["seal leakage", "bearing wear", "shaft misalignment"]
+				}
+			]
+		},
+		{
+			"id": "rca-p101-vibration-threshold",
+			"asset_id": "P-101",
+			"symptom": "Vibration above operating threshold",
+			"likely_cause_terms": ["bearing wear", "shaft misalignment"],
+			"recommended_check_terms": ["alignment check", "lubrication history"],
+			"evidence": [
+				{
+					"file": "sample_data/Pump P-101 OEM Manual.txt",
+					"page": 1,
+					"contains": ["vibration threshold", "7 mm/s"]
+				},
+				{
+					"file": "sample_data/Shift Handover Log Unit 1.txt",
+					"page": 1,
+					"contains": ["8.0 mm/s", "alignment check", "lubrication history"]
+				}
+			]
+		},
+		{
+			"id": "rca-c204-overheating",
+			"asset_id": "C-204",
+			"symptom": "Compressor overheating alarm",
+			"likely_cause_terms": ["overheating", "high ambient temperature"],
+			"recommended_check_terms": ["inspection record", "supervisor sign-off"],
+			"evidence": [
+				{
+					"file": "sample_data/Compressor C-204 Maintenance Log.txt",
+					"page": 1,
+					"contains": ["overheating", "high ambient temperature"]
+				},
+				{
+					"file": "sample_data/Sensor Anomaly Events.csv",
+					"page": 1,
+					"contains": ["C-204", "discharge temperature", "118"]
+				}
+			]
+		},
+		{
+			"id": "rca-hx22-fouling",
+			"asset_id": "HX-22",
+			"symptom": "Reduced heat exchanger performance after inspection",
+			"likely_cause_terms": ["mild tube fouling", "gasket set wear"],
+			"recommended_check_terms": ["Cleaning completed", "Next inspection due"],
+			"evidence": [
+				{
+					"file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+					"page": 1,
+					"contains": [
+						"mild tube fouling",
+						"gasket set wear",
+						"Next inspection due"
+					]
+				}
+			]
+		}
+	],
+	"graph_checks": [
+		{
+			"id": "graph-p101-failure-mode",
+			"source_node": "P-101",
+			"relation_type": "EQUIPMENT_HAS_FAILURE",
+			"target_node": "Failure Mode:seal leakage",
+			"confidence": 0.88,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+			"evidence_page": 1,
+			"evidence_terms": ["P-101", "seal leakage", "bearing wear"]
+		},
+		{
+			"id": "graph-p101-spare-part",
+			"source_node": "P-101",
+			"relation_type": "MAINTENANCE_USES_SPARE",
+			"target_node": "Spare Part:mechanical seal",
+			"confidence": 0.82,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Spare Parts Inventory.csv",
+			"evidence_page": 1,
+			"evidence_terms": ["mechanical seal", "P-101", "Stockout"]
+		},
+		{
+			"id": "graph-p101-work-order",
+			"source_node": "P-101",
+			"relation_type": "EQUIPMENT_HAS_WORK_ORDER",
+			"target_node": "Work Order:WO-1201",
+			"confidence": 0.79,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Pump P-101 OEM Manual.txt",
+			"evidence_page": 1,
+			"evidence_terms": ["WO-1201", "vibration warning"]
+		},
+		{
+			"id": "graph-c204-compliance-gap",
+			"source_node": "C-204",
+			"relation_type": "EQUIPMENT_HAS_COMPLIANCE_GAP",
+			"target_node": "Compliance Gap:C-204 overdue inspection",
+			"confidence": 0.9,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Factory Safety Compliance Checklist.txt",
+			"evidence_page": 1,
+			"evidence_terms": [
+				"C-204",
+				"overdue inspection",
+				"missing supervisor sign-off"
+			]
+		},
+		{
+			"id": "graph-b12-permit-control",
+			"source_node": "B-12",
+			"relation_type": "PROCEDURE_REQUIRES_PERMIT_CONTROL",
+			"target_node": "Permit Control:LOTO",
+			"confidence": 0.84,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Boiler B-12 Safety SOP.txt",
+			"evidence_page": 1,
+			"evidence_terms": ["Boiler B-12", "LOTO", "Permit To Work"]
+		},
+		{
+			"id": "graph-p101-contradiction",
+			"source_node": "P-101",
+			"relation_type": "EQUIPMENT_HAS_CONTRADICTION",
+			"target_node": "Contradiction:P-101 restart lockout",
+			"confidence": 0.83,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Contradiction Log P-101.txt",
+			"evidence_page": 1,
+			"evidence_terms": ["ready for restart", "lockout", "reconciliation"]
+		},
+		{
+			"id": "graph-hx22-work-order",
+			"source_node": "HX-22",
+			"relation_type": "EQUIPMENT_HAS_WORK_ORDER",
+			"target_node": "Work Order:WO-3102",
+			"confidence": 0.8,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+			"evidence_page": 1,
+			"evidence_terms": ["HX-22", "WO-3102", "Cleaning completed"]
+		},
+		{
+			"id": "graph-p101-api610",
+			"source_node": "P-101",
+			"relation_type": "PROCEDURE_REFERENCES_REGULATION",
+			"target_node": "Regulation:API 610",
+			"confidence": 0.77,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Vendor Service Report P-101.txt",
+			"evidence_page": 1,
+			"evidence_terms": ["P-101", "API 610"]
+		},
+		{
+			"id": "graph-c204-temperature-signal",
+			"source_node": "C-204",
+			"relation_type": "EQUIPMENT_HAS_HISTORIAN_SIGNAL",
+			"target_node": "Historian Signal:discharge temperature",
+			"confidence": 0.76,
+			"expected_status": "accepted",
+			"evidence_file": "sample_data/Sensor Anomaly Events.csv",
+			"evidence_page": 1,
+			"evidence_terms": ["C-204", "discharge temperature", "118"]
+		}
+	],
+	"graph_validation_checks": [
+		{
+			"id": "graph-validation-accepted-evidence",
+			"source_node": "P-101",
+			"relation_type": "EQUIPMENT_HAS_FAILURE",
+			"target_node": "Failure Mode:seal leakage",
+			"confidence": 0.88,
+			"expected_status": "accepted",
+			"evidence": {
+				"file": "sample_data/Incident Report Pump P-101 Seal Failure.txt",
+				"page": 1,
+				"contains": ["seal leakage", "bearing wear"]
+			}
+		},
+		{
+			"id": "graph-validation-weak-low-confidence",
+			"source_node": "P-101",
+			"relation_type": "EQUIPMENT_SUPPORTED_BY_DOCUMENT",
+			"target_node": "Document:Pump P-101 OEM Manual.txt",
+			"confidence": 0.58,
+			"expected_status": "weak",
+			"evidence": {
+				"file": "sample_data/Pump P-101 OEM Manual.txt",
+				"page": 1,
+				"contains": ["P-101", "Centrifugal Process Pump"]
+			}
+		},
+		{
+			"id": "graph-validation-rejected-missing-evidence",
+			"source_node": "P-999",
+			"relation_type": "EQUIPMENT_HAS_FAILURE",
+			"target_node": "Failure Mode:unknown failure",
+			"confidence": 0.91,
+			"expected_status": "rejected",
+			"source_document": "",
+			"source_page": 1,
+			"evidence_text": ""
+		}
+	],
+	"parser_checks": [
+		{
+			"id": "parser-pid-extract",
+			"file": "sample_data/P&ID Extract Unit 1.pdf",
+			"page_count_min": 1,
+			"expected_terms": ["P&ID Extract Unit 1", "P-101", "VLV-101", "LOTO"]
+		},
+		{
+			"id": "parser-scanned-form-image-backed",
+			"file": "sample_data/Scanned C-204 Inspection Form.pdf",
+			"page_count_min": 1,
+			"metadata_min": {
+				"extracted_images_count": 1
+			}
+		},
+		{
+			"id": "parser-work-order-xlsx",
+			"file": "sample_data/Work Order History.xlsx",
+			"page_count_min": 1,
+			"metadata_min": {
+				"extracted_tables_count": 1
+			},
+			"expected_terms": ["P-101", "WO-1260", "HX-22"]
+		},
+		{
+			"id": "parser-quick-guide-docx",
+			"file": "sample_data/Pump P-101 Quick Maintenance Guide.docx",
+			"page_count_min": 1,
+			"expected_terms": [
+				"Pump P-101 Quick Maintenance Guide",
+				"bearing inspection",
+				"WO-1260"
+			]
+		},
+		{
+			"id": "parser-historian-csv",
+			"file": "sample_data/Historian Trend P-101.csv",
+			"page_count_min": 1,
+			"metadata_min": {
+				"extracted_tables_count": 1
+			},
+			"expected_terms": ["P-101", "vibration", "8.2"]
+		},
+		{
+			"id": "parser-hx22-text",
+			"file": "sample_data/Heat Exchanger HX-22 Inspection Report.txt",
+			"page_count_min": 1,
+			"expected_terms": [
+				"HX-22",
+				"mild tube fouling",
+				"No immediate safety hazard"
+			]
+		}
+	]
+}
