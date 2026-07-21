@@ -104,12 +104,8 @@ export default function DashboardPage() {
 				actions={
 					hasDocuments ? (
 						<div className="flex flex-wrap gap-2">
-							<ActionLink
-								href="/documents"
-								icon={UploadCloud}
-								variant="secondary"
-							>
-								Analyse Evidence
+							<ActionLink href="/documents" icon={FileText} variant="secondary">
+								View Evidence
 							</ActionLink>
 							<ActionLink
 								href="/chat"
@@ -131,13 +127,14 @@ export default function DashboardPage() {
 			) : !data ? (
 				<EmptyState
 					icon={AlertTriangle}
-					message="Upload documents and analyse the workspace to populate the command centre."
+					message="Upload documents to run analysis and populate the command centre."
 					title="Workspace Data Unavailable"
 				/>
 			) : !hasDocuments ? (
 				<div className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(22rem,0.75fr)]">
 					<DocumentUploader
-						intro="Start with plant evidence. Uploading indexes the source files, then analysis extracts assets, events, gaps, and graph links."
+						autoAnalyseAfterUpload
+						intro="Start with plant evidence. Upload multiple files, then the analysis pipeline runs automatically after upload succeeds."
 						onUploaded={() => reload(true)}
 					/>
 					<DataCard
@@ -149,12 +146,12 @@ export default function DashboardPage() {
 							<ReadinessStep
 								active
 								icon={UploadCloud}
-								label="Upload plant files"
+								label="Upload multiple files"
 								meta="PDF, DOCX, TXT, CSV, XLSX"
 							/>
 							<ReadinessStep
 								icon={BrainCircuit}
-								label="Analyse workspace"
+								label="Analysis pipeline"
 								meta="Extract assets, events, controls, and gaps"
 							/>
 							<ReadinessStep

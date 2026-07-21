@@ -100,6 +100,9 @@ test("uploads every supported source, performs OCR and runs live extraction", as
 	await expect(
 		page.getByRole("button", { name: "Run Extraction" }),
 	).toBeDisabled();
+	await expect(
+		page.getByRole("button", { exact: true, name: "Select Folder" }),
+	).toHaveCount(0);
 
 	const dropZone = page.getByRole("button", {
 		name: "Drop plant files here",
@@ -116,24 +119,10 @@ test("uploads every supported source, performs OCR and runs live extraction", as
 	await expect(page.getByText("Unsupported File Type")).toBeVisible();
 	await page.getByRole("button", { name: "Remove unsupported.bin" }).click();
 
-	const folderChooser = page.waitForEvent("filechooser");
-	await page
-		.getByRole("button", { exact: true, name: "Select Folder" })
-		.click();
-	await (await folderChooser).setFiles(sampleDataDirectory);
-	await expect(
-		page.getByText(`${sampleFileCount} selected, 0 need attention.`),
-	).toBeVisible();
-	while (await page.getByRole("button", { name: /^Remove / }).count()) {
-		await page
-			.getByRole("button", { name: /^Remove / })
-			.first()
-			.click();
-	}
-	await expect(page.getByText(/selected, 0 need attention/)).toHaveCount(0);
-
 	const filesChooser = page.waitForEvent("filechooser");
-	await page.getByRole("button", { exact: true, name: "Select Files" }).click();
+	await page
+		.getByRole("button", { exact: true, name: "Upload Multiple Files" })
+		.click();
 	await (await filesChooser).setFiles(sampleFiles);
 	await expect(
 		page.getByText(`${sampleFileCount} selected, 0 need attention.`),
@@ -143,20 +132,18 @@ test("uploads every supported source, performs OCR and runs live extraction", as
 		page.getByText(`${sampleFileCount} selected, 0 need attention.`),
 	).toHaveCount(0);
 
-	const uploadFolderChooser = page.waitForEvent("filechooser");
+	const uploadFilesChooser = page.waitForEvent("filechooser");
 	await page
-		.getByRole("button", { exact: true, name: "Select Folder" })
+		.getByRole("button", { exact: true, name: "Upload Multiple Files" })
 		.click();
-	await (await uploadFolderChooser).setFiles(sampleDataDirectory);
+	await (await uploadFilesChooser).setFiles(sampleFiles);
 	const uploadResponsePromise = page.waitForResponse(
 		(response) =>
 			response.url() === `${testApiOrigin}/documents/upload-batch` &&
 			response.request().method() === "POST",
 		{ timeout: 180_000 },
 	);
-	await page
-		.getByRole("button", { name: `Upload ${sampleFileCount} files` })
-		.click();
+	await page.getByRole("button", { exact: true, name: "Upload" }).click();
 	const uploadResponse = await uploadResponsePromise;
 	expect(uploadResponse.status()).toBe(200);
 	const uploadResult = await uploadResponse.json();
@@ -164,7 +151,7 @@ test("uploads every supported source, performs OCR and runs live extraction", as
 	expect(uploadResult.duplicate_count).toBe(0);
 	expect(uploadResult.failed_count).toBe(0);
 	await expect(
-		page.getByText(`Uploaded: ${sampleFileCount}. Duplicates: 0. Failed: 0.`),
+		page.getByText(`Indexed: ${sampleFileCount}. Duplicates: 0. Failed: 0.`),
 	).toBeVisible();
 
 	const documentsResponse = await request.get(`${testApiOrigin}/documents`);
@@ -185,18 +172,20 @@ test("uploads every supported source, performs OCR and runs live extraction", as
 	expect(scannedDocument.ocr_confidence).toBeGreaterThan(0.9);
 
 	const duplicateChooser = page.waitForEvent("filechooser");
-	await page.getByRole("button", { exact: true, name: "Select Files" }).click();
+	await page
+		.getByRole("button", { exact: true, name: "Upload Multiple Files" })
+		.click();
 	await (await duplicateChooser).setFiles(sampleFiles[0]);
 	const duplicateResponsePromise = page.waitForResponse(
 		(response) =>
 			response.url() === `${testApiOrigin}/documents/upload-batch` &&
 			response.request().method() === "POST",
 	);
-	await page.getByRole("button", { name: "Upload 1 files" }).click();
+	await page.getByRole("button", { exact: true, name: "Upload" }).click();
 	const duplicateResult = await (await duplicateResponsePromise).json();
 	expect(duplicateResult.duplicate_count).toBe(1);
 	await expect(
-		page.getByText("Uploaded: 0. Duplicates: 1. Failed: 0."),
+		page.getByText("Indexed: 0. Duplicates: 1. Failed: 0."),
 	).toBeVisible();
 
 	const extractionResponsePromise = page.waitForResponse(
@@ -714,6 +703,9 @@ test("confirms destructive clear only in the isolated workspace and verifies emp
 
 	await OpenRoute(page, "/", "Command Centre");
 	await expect(page.getByText("Run Sequence")).toBeVisible();
+	await expect(
+		page.getByRole("button", { exact: true, name: "Select Folder" }),
+	).toHaveCount(0);
 	const dropZone = page.getByRole("button", { name: "Drop plant files here" });
 	const chooser = page.waitForEvent("filechooser");
 	await dropZone.click();
@@ -728,21 +720,49 @@ test("confirms destructive clear only in the isolated workspace and verifies emp
 		.getByRole("button", { name: "Remove dashboard-unsupported.bin" })
 		.click();
 	const emptyFilesChooser = page.waitForEvent("filechooser");
-	await page.getByRole("button", { exact: true, name: "Select Files" }).click();
-	await (await emptyFilesChooser).setFiles([]);
-	const dashboardFolderChooser = page.waitForEvent("filechooser");
 	await page
-		.getByRole("button", { exact: true, name: "Select Folder" })
+		.getByRole("button", { exact: true, name: "Upload Multiple Files" })
 		.click();
-	await (await dashboardFolderChooser).setFiles(sampleDataDirectory);
+	await (await emptyFilesChooser).setFiles([]);
+	const dashboardFilesChooser = page.waitForEvent("filechooser");
+	await page
+		.getByRole("button", { exact: true, name: "Upload Multiple Files" })
+		.click();
+	await (await dashboardFilesChooser).setFiles(sampleFiles);
 	await expect(
 		page.getByText(`${sampleFileCount} selected, 0 need attention.`),
 	).toBeVisible();
-	await page.getByRole("button", { name: "Clear Queue" }).click();
+	const dashboardUploadResponsePromise = page.waitForResponse(
+		(response) =>
+			response.url() === `${testApiOrigin}/documents/upload-batch` &&
+			response.request().method() === "POST",
+		{ timeout: 180_000 },
+	);
+	const dashboardAnalysisResponsePromise = page.waitForResponse(
+		(response) =>
+			response.url() === `${testApiOrigin}/analysis/regenerate` &&
+			response.request().method() === "POST",
+		{ timeout: 240_000 },
+	);
+	await page.getByRole("button", { exact: true, name: "Upload" }).click();
+	const dashboardUploadResponse = await dashboardUploadResponsePromise;
+	expect(dashboardUploadResponse.status()).toBe(200);
+	const dashboardUploadResult = await dashboardUploadResponse.json();
+	expect(dashboardUploadResult.uploaded_count).toBe(sampleFileCount);
+	expect(dashboardUploadResult.failed_count).toBe(0);
+	const dashboardAnalysisResponse = await dashboardAnalysisResponsePromise;
+	expect(dashboardAnalysisResponse.status()).toBe(200);
+	const dashboardAnalysis = await dashboardAnalysisResponse.json();
+	expect(dashboardAnalysis.analysis_status).toBe("complete");
+	await expect(
+		page.getByText(
+			"Operational intelligence built only from uploaded evidence.",
+		),
+	).toBeVisible({ timeout: 30_000 });
 	await ExpectNoHorizontalOverflow(page);
 	await page.screenshot({
 		fullPage: true,
-		path: testInfo.outputPath("empty-dashboard.png"),
+		path: testInfo.outputPath("dashboard-auto-analysis.png"),
 	});
 });
 

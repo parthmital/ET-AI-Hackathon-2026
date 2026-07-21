@@ -10,7 +10,7 @@ import type {
 	HTMLAttributes,
 } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Files, FolderOpen, X } from "lucide-react";
+import { Check, ChevronDown, Files, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { FormatDisplayLabel } from "@/lib/format";
 
@@ -1006,9 +1006,7 @@ export function FileDropZone({
 	onFiles: (files: File[] | FileList | null) => void;
 	title: string;
 }) {
-	const [pickerMessage, setPickerMessage] = useState("");
 	const inputRef = useRef<HTMLInputElement>(null);
-	const folderInputRef = useRef<HTMLInputElement>(null);
 	const acceptedMimeTypes = useMemo(
 		() =>
 			acceptExtensions
@@ -1021,19 +1019,8 @@ export function FileDropZone({
 		.filter(Boolean)
 		.join(",");
 
-	useEffect(() => {
-		const folderInput = folderInputRef.current;
-		if (!folderInput) return;
-		folderInput.setAttribute("webkitdirectory", "");
-		folderInput.setAttribute("directory", "");
-	}, []);
-
 	function PickFiles() {
 		inputRef.current?.click();
-	}
-
-	function PickFolder() {
-		folderInputRef.current?.click();
 	}
 
 	function HandleKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
@@ -1071,29 +1058,10 @@ export function FileDropZone({
 				multiple
 				onChange={(event) => {
 					onFiles(event.currentTarget.files);
-					setPickerMessage("");
 					event.currentTarget.value = "";
 				}}
 				onClick={(event) => event.stopPropagation()}
 				ref={inputRef}
-				tabIndex={-1}
-				type="file"
-			/>
-			<input
-				aria-hidden="true"
-				accept={acceptValue}
-				className="hidden"
-				multiple
-				onChange={(event) => {
-					const files = event.currentTarget.files;
-					onFiles(files);
-					if (files?.length) {
-						setPickerMessage(`${files.length} Files Selected From Folder.`);
-					}
-					event.currentTarget.value = "";
-				}}
-				onClick={(event) => event.stopPropagation()}
-				ref={folderInputRef}
 				tabIndex={-1}
 				type="file"
 			/>
@@ -1111,7 +1079,7 @@ export function FileDropZone({
 					{title}
 				</span>
 				<span className="mt-2 max-w-sm text-sm leading-6 text-app-muted">
-					{pickerMessage || description}
+					{description}
 				</span>
 			</button>
 			<span className="mt-4 flex flex-wrap justify-center gap-2">
@@ -1124,18 +1092,7 @@ export function FileDropZone({
 					onKeyDown={(event) => event.stopPropagation()}
 				>
 					<AppIcon className="size-4" icon={Files} />
-					Select Files
-				</Pressable>
-				<Pressable
-					className="inline-flex items-center gap-2 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-xs font-semibold text-app-text shadow-[var(--app-shadow-tight)] transition-all duration-200 ease-out hover:border-app-border-strong hover:bg-app-hover active:scale-[0.98]"
-					onClick={(event) => {
-						event.stopPropagation();
-						PickFolder();
-					}}
-					onKeyDown={(event) => event.stopPropagation()}
-				>
-					<AppIcon className="size-4" icon={FolderOpen} />
-					Select Folder
+					Upload Multiple Files
 				</Pressable>
 			</span>
 		</div>

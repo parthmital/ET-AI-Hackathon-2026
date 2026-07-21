@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
 	AlertTriangle,
+	BrainCircuit,
 	CheckCircle2,
 	FileText,
 	RefreshCw,
@@ -11,10 +12,17 @@ import {
 	XCircle,
 } from "lucide-react";
 import { DataCard } from "@/components/DataCard";
-import { AppIcon, Button, FileDropZone, IconButton } from "@/components/UI";
-import { UploadDocuments } from "@/lib/api";
+import {
+	AppIcon,
+	Button,
+	FileDropZone,
+	IconButton,
+	type IconType,
+} from "@/components/UI";
+import { RegenerateAnalysis, UploadDocuments } from "@/lib/api";
 import { DataRefreshEvent } from "@/lib/useAsyncResource";
 import { StatusBadge } from "@/components/StatusBadge";
+import type { AnalysisStatus } from "@/lib/types";
 
 const SupportedExtensions = [".pdf", ".docx", ".txt", ".csv", ".xlsx"];
 
@@ -27,18 +35,28 @@ type UploadItem = {
 	message: string;
 };
 type FileWithRelativePath = File & { webkitRelativePath?: string };
+type UploadNotice = {
+	icon: IconType;
+	message: string;
+	tone: "info" | "success" | "error";
+};
 
 export function DocumentUploader({
-	intro = "Select files or a folder containing PDF, DOCX, TXT, CSV, or XLSX files. Uploading does not run generated analysis.",
+	autoAnalyseAfterUpload = false,
+	intro = "Select PDF, DOCX, TXT, CSV, or XLSX files. Uploading indexes the source files.",
 	onUploaded,
 }: {
+	autoAnalyseAfterUpload?: boolean;
 	intro?: string;
 	onUploaded?: () => Promise<unknown> | unknown;
 }) {
 	const [queue, setQueue] = useState<UploadItem[]>([]);
 	const [isDragging, setIsDragging] = useState(false);
-	const [status, setStatus] = useState("");
+	const [notice, setNotice] = useState<UploadNotice | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
+	const [isAnalysing, setIsAnalysing] = useState(false);
+	const isBusyRef = useRef(false);
+	const isBusy = isUploading || isAnalysing;
 	const readyItems = queue.filter(
 		(item) =>
 			(item.status === "selected" || item.status === "failed") &&
@@ -54,7 +72,7 @@ export function DocumentUploader({
 	function HandleFiles(files: File[] | FileList | null) {
 		const incomingFiles = Array.from(files ?? []);
 		if (!incomingFiles.length) return;
-		setStatus("");
+		setNotice(null);
 		setQueue((current) => {
 			const existing = new Set(current.map((item) => item.id));
 			const incoming = incomingFiles
@@ -80,10 +98,16 @@ export function DocumentUploader({
 	}
 
 	async function UploadSelected() {
+		if (isBusyRef.current) return;
 		const selected = readyItems;
 		if (!selected.length) return;
+		isBusyRef.current = true;
 		setIsUploading(true);
-		setStatus("");
+		setNotice({
+			icon: UploadCloud,
+			message: `Uploading ${selected.length} files.`,
+			tone: "info",
+		});
 		const selectedIds = new Set(selected.map((item) => item.id));
 		setQueue((items) =>
 			items.map((item) =>
@@ -99,11 +123,95 @@ export function DocumentUploader({
 		);
 		try {
 			const result = await UploadViaMultipart(selected, UpdateQueueItem);
-			setStatus(
-				`Indexed: ${result.indexed}. Duplicates: ${result.duplicates}. Failed: ${result.failed}.`,
+			if (result.failed) {
+				setNotice({
+					icon: AlertTriangle,
+					message: `Indexed: ${result.indexed}. Duplicates: ${result.duplicates}. Failed: ${result.failed}. Analysis did not run because the upload was incomplete.`,
+					tone: "error",
+				});
+				if (!autoAnalyseAfterUpload) await NotifyWorkspaceChanged(onUploaded);
+				return;
+			}
+			if (!autoAnalyseAfterUpload) {
+				setNotice({
+					icon: CheckCircle2,
+					message: `Indexed: ${result.indexed}. Duplicates: ${result.duplicates}. Failed: 0.`,
+					tone: "success",
+				});
+				await NotifyWorkspaceChanged(onUploaded);
+				return;
+			}
+			if (!result.indexed) {
+				setNotice({
+					icon: AlertTriangle,
+					message: `No new files were indexed. Duplicates: ${result.duplicates}. Analysis did not run.`,
+					tone: "info",
+				});
+				return;
+			}
+			setIsUploading(false);
+			setIsAnalysing(true);
+			setNotice({
+				icon: BrainCircuit,
+				message: `Upload complete: ${result.indexed} indexed, ${result.duplicates} duplicates. Running analysis pipeline.`,
+				tone: "info",
+			});
+			setQueue((items) =>
+				items.map((item) =>
+					selectedIds.has(item.id) && item.status === "indexed"
+						? { ...item, message: "Indexed. Analysis running." }
+						: item,
+				),
 			);
-			await onUploaded?.();
-			window.dispatchEvent(new Event(DataRefreshEvent));
+			let analysis: AnalysisStatus;
+			try {
+				analysis = await RegenerateAnalysis();
+			} catch (analysisError) {
+				setQueue((items) =>
+					items.map((item) =>
+						selectedIds.has(item.id) && item.status === "indexed"
+							? { ...item, message: "Indexed. Analysis failed." }
+							: item,
+					),
+				);
+				setNotice({
+					icon: XCircle,
+					message:
+						analysisError instanceof Error
+							? analysisError.message
+							: "Analysis failed after upload.",
+					tone: "error",
+				});
+				return;
+			}
+			if (analysis.analysis_status === "complete") {
+				setNotice({
+					icon: CheckCircle2,
+					message: FormatAnalysisSuccess(analysis),
+					tone: "success",
+				});
+				setQueue((items) =>
+					items.map((item) =>
+						selectedIds.has(item.id) && item.status === "indexed"
+							? { ...item, message: "Indexed and analysed." }
+							: item,
+					),
+				);
+				await NotifyWorkspaceChanged(onUploaded);
+				return;
+			}
+			setNotice({
+				icon: XCircle,
+				message: analysis.analysis_message || "Analysis failed after upload.",
+				tone: "error",
+			});
+			setQueue((items) =>
+				items.map((item) =>
+					selectedIds.has(item.id) && item.status === "indexed"
+						? { ...item, message: "Indexed. Analysis failed." }
+						: item,
+				),
+			);
 		} catch (uploadError) {
 			setQueue((items) =>
 				items.map((item) =>
@@ -119,8 +227,16 @@ export function DocumentUploader({
 						: item,
 				),
 			);
+			setNotice({
+				icon: XCircle,
+				message:
+					uploadError instanceof Error ? uploadError.message : "Upload failed.",
+				tone: "error",
+			});
 		} finally {
 			setIsUploading(false);
+			setIsAnalysing(false);
+			isBusyRef.current = false;
 		}
 	}
 
@@ -132,17 +248,22 @@ export function DocumentUploader({
 
 	return (
 		<DataCard
-			action={<StatusBadge value={`${readyItems.length} Ready`} />}
+			action={
+				<StatusBadge
+					value={
+						isAnalysing
+							? "Analysing"
+							: isUploading
+								? "Uploading"
+								: `${readyItems.length} Ready`
+					}
+				/>
+			}
 			description={intro}
 			eyebrow="Evidence Intake"
 			title="Upload Evidence"
 		>
-			{status ? (
-				<div className="mb-4 flex min-w-0 gap-2 rounded-lg border border-app-border bg-app-panel p-3 text-sm font-semibold text-app-muted">
-					<AppIcon className="mt-0.5 size-4" icon={AlertTriangle} />
-					<span className="min-w-0 break-words">{status}</span>
-				</div>
-			) : null}
+			{notice ? <UploadNoticeMessage notice={notice} /> : null}
 			<FileDropZone
 				acceptExtensions={SupportedExtensions}
 				description="PDF, DOCX, TXT, CSV, and XLSX are supported."
@@ -156,15 +277,15 @@ export function DocumentUploader({
 				<>
 					<div className="mt-4 flex flex-wrap gap-2">
 						<Button
-							disabled={!readyItems.length || isUploading}
-							icon={isUploading ? RefreshCw : UploadCloud}
+							disabled={!readyItems.length || isBusy}
+							icon={isBusy ? RefreshCw : UploadCloud}
 							onClick={UploadSelected}
 							type="button"
 						>
-							{isUploading ? "Uploading" : `Upload ${readyItems.length} files`}
+							{isUploading ? "Uploading" : isAnalysing ? "Analysing" : "Upload"}
 						</Button>
 						<Button
-							disabled={isUploading}
+							disabled={isBusy}
 							onClick={() => setQueue([])}
 							type="button"
 							variant="secondary"
@@ -174,6 +295,7 @@ export function DocumentUploader({
 					</div>
 					<UploadQueue
 						items={queue}
+						isBusy={isBusy}
 						onRemove={(id) =>
 							setQueue((items) => items.filter((item) => item.id !== id))
 						}
@@ -187,6 +309,39 @@ export function DocumentUploader({
 	);
 }
 
+function UploadNoticeMessage({ notice }: { notice: UploadNotice }) {
+	const toneClass = {
+		error: "border-tone-red-border bg-tone-red-bg text-tone-red-text",
+		info: "border-app-border bg-app-panel text-app-muted",
+		success:
+			"border-tone-emerald-border bg-tone-emerald-bg text-tone-emerald-text",
+	}[notice.tone];
+
+	return (
+		<div
+			className={`mb-4 flex min-w-0 gap-2 rounded-lg border p-3 text-sm font-semibold ${toneClass}`}
+		>
+			<AppIcon className="mt-0.5 size-4" icon={notice.icon} />
+			<span className="min-w-0 break-words">{notice.message}</span>
+		</div>
+	);
+}
+
+async function NotifyWorkspaceChanged(
+	onUploaded: (() => Promise<unknown> | unknown) | undefined,
+) {
+	try {
+		await onUploaded?.();
+	} catch {
+		// The data refresh layer reports its own visible error state.
+	}
+	window.dispatchEvent(new Event(DataRefreshEvent));
+}
+
+function FormatAnalysisSuccess(analysis: AnalysisStatus) {
+	return `Upload and analysis complete: ${analysis.assets} assets, ${analysis.timeline_events} events, ${analysis.compliance_gaps} gaps, ${analysis.contradictions} contradictions.`;
+}
+
 function FileQueueId(file: File) {
 	return `${FileDisplayName(file)}-${file.lastModified}-${file.size}`;
 }
@@ -196,9 +351,11 @@ function FileDisplayName(file: File) {
 }
 
 function UploadQueue({
+	isBusy,
 	items,
 	onRemove,
 }: {
+	isBusy: boolean;
 	items: UploadItem[];
 	onRemove: (id: string) => void;
 }) {
@@ -241,7 +398,7 @@ function UploadQueue({
 								value={item.status}
 							/>
 							<IconButton
-								disabled={item.status === "uploading"}
+								disabled={isBusy}
 								icon={X}
 								label={`Remove ${FileDisplayName(item.file)}`}
 								onClick={() => onRemove(item.id)}
@@ -259,9 +416,17 @@ async function UploadViaMultipart(
 	update: (id: string, patch: Partial<UploadItem>) => void,
 ) {
 	const result = await UploadDocuments(selected.map((item) => item.file));
+	let missingResults = 0;
 	selected.forEach((item, index) => {
 		const outcome = result.items[index];
-		if (!outcome) return;
+		if (!outcome) {
+			missingResults += 1;
+			update(item.id, {
+				status: "failed",
+				message: "Upload result missing. Retry this file.",
+			});
+			return;
+		}
 		update(item.id, {
 			status: outcome.status === "uploaded" ? "indexed" : outcome.status,
 			progress: outcome.status === "failed" ? item.progress : 100,
@@ -271,6 +436,6 @@ async function UploadViaMultipart(
 	return {
 		indexed: result.uploaded_count,
 		duplicates: result.duplicate_count,
-		failed: result.failed_count,
+		failed: result.failed_count + missingResults,
 	};
 }
