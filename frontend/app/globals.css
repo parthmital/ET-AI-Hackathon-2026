@@ -359,6 +359,34 @@ a:focus-visible,
 		color 150ms ease;
 }
 
+.evidence-flow-node.react-flow__node {
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--app-text);
+	font-size: inherit;
+}
+
+.evidence-flow-node.react-flow__node.selected {
+	box-shadow: none;
+}
+
+.evidence-flow-node .evidence-node-handle {
+	height: 9px;
+	width: 9px;
+	border: 2px solid var(--app-graph-bg);
+	background: var(--app-border-strong);
+	opacity: 0.9;
+}
+
+.evidence-flow-node .react-flow__handle-left {
+	left: -5px;
+}
+
+.evidence-flow-node .react-flow__handle-right {
+	right: -5px;
+}
+
 .react-flow__edge-text {
 	font-size: 10px;
 	fill: var(--app-muted);

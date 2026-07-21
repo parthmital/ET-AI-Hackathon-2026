@@ -2,7 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
-import { type Edge, type Node, type ReactFlowInstance } from "reactflow";
+import {
+	MarkerType,
+	Position,
+	type Edge,
+	type Node,
+	type ReactFlowInstance,
+} from "reactflow";
 import {
 	Crosshair,
 	Download,
@@ -36,10 +42,9 @@ const LazyGraphCanvas = dynamic(
 	},
 );
 
-const NodePalette: Record<
-	string,
-	{ border: string; bg: string; text: string }
-> = {
+type NodePaletteEntry = { border: string; bg: string; text: string };
+
+const NodePalette: Record<string, NodePaletteEntry> = {
 	Equipment: {
 		border: "var(--tone-teal-text)",
 		bg: "var(--tone-teal-bg)",
@@ -138,8 +143,12 @@ const NodePalette: Record<
 };
 
 const EmptyGraph: GraphResponse = { nodes: [], edges: [] };
-const GraphFitPadding = 0.24;
-const GraphMinZoom = 0.08;
+const GraphFitPadding = 0.18;
+const GraphMinZoom = 0.22;
+const GraphColumnGap = 292;
+const GraphLaneMinHeight = 188;
+const GraphNodeWidth = 224;
+const GraphStackGap = 112;
 const CoreExcludedTypes = new Set([
 	"Audit Status",
 	"Document",
@@ -150,6 +159,46 @@ const CoreExcludedTypes = new Set([
 	"Maintenance Event",
 	"Process Parameter",
 ]);
+const GraphColumnByType: Record<string, number> = {
+	Equipment: 0,
+	Location: 1,
+	"Historian Signal": 1,
+	"Process Parameter": 1,
+	"Failure Mode": 2,
+	"Safety Hazard": 2,
+	"Maintenance Activity": 3,
+	"Maintenance Event": 3,
+	"Work Order": 3,
+	"Spare Part": 3,
+	"Permit Control": 4,
+	"PPE Requirement": 4,
+	Regulation: 4,
+	"Compliance Gap": 5,
+	Contradiction: 5,
+	"Audit Status": 5,
+	"Inspection Date": 5,
+	"Document Date": 5,
+	Person: 5,
+	Document: 6,
+};
+const TypeSortOrder = [
+	"Equipment",
+	"Location",
+	"Historian Signal",
+	"Process Parameter",
+	"Failure Mode",
+	"Safety Hazard",
+	"Maintenance Activity",
+	"Maintenance Event",
+	"Work Order",
+	"Spare Part",
+	"Permit Control",
+	"PPE Requirement",
+	"Regulation",
+	"Compliance Gap",
+	"Contradiction",
+	"Document",
+];
 
 type GraphData = {
 	graph: GraphResponse;
@@ -157,6 +206,7 @@ type GraphData = {
 };
 
 type GraphEdgeRecord = GraphResponse["edges"][number];
+type GraphNodeRecord = GraphResponse["nodes"][number];
 
 async function LoadGraphData(): Promise<GraphData> {
 	const [graph, paths] = await Promise.all([GetGraph(), GetGraphPaths()]);
@@ -207,7 +257,7 @@ export default function GraphPage() {
 		});
 		return ids;
 	}, [graph.edges, selectedEdge, selectedNode]);
-	const nodes: Node[] = useMemo(() => {
+	const visibleGraphNodes = useMemo(() => {
 		const query = search.trim().toLowerCase();
 		return graph.nodes
 			.filter((node) => {
@@ -221,71 +271,114 @@ export default function GraphPage() {
 					node.data.type.toLowerCase().includes(query)
 				);
 			})
-			.filter((node) => !focusedMode || connectedNodeIds.has(node.id))
-			.map((node) => {
+			.filter((node) => !focusedMode || connectedNodeIds.has(node.id));
+	}, [connectedNodeIds, filter, focusedMode, graph.nodes, search]);
+	const visibleGraphNodeIds = useMemo(
+		() => new Set(visibleGraphNodes.map((node) => node.id)),
+		[visibleGraphNodes],
+	);
+	const visibleGraphEdges = useMemo(
+		() =>
+			graph.edges.filter(
+				(edge) =>
+					visibleGraphNodeIds.has(edge.source) &&
+					visibleGraphNodeIds.has(edge.target),
+			),
+		[graph.edges, visibleGraphNodeIds],
+	);
+	const graphLayout = useMemo(
+		() => BuildReadableGraphLayout(visibleGraphNodes, visibleGraphEdges),
+		[visibleGraphEdges, visibleGraphNodes],
+	);
+	const selectionActive = Boolean(selectedNode || selectedEdge);
+	const nodes: Node[] = useMemo(
+		() =>
+			visibleGraphNodes.map((node) => {
 				const palette = NodePalette[node.data.type] ?? {
 					border: "var(--app-border)",
 					bg: "var(--app-surface)",
 					text: "var(--app-text)",
 				};
-				const nodeBackground = `linear-gradient(${palette.bg}, ${palette.bg}), var(--app-graph-bg)`;
 				const isDocument = node.data.type === "Document";
 				const isEquipment = node.data.type === "Equipment";
 				return {
 					ariaLabel: `Graph node ${node.data.label} (${node.data.type})`,
+					className: "evidence-flow-node",
 					id: node.id,
 					data: {
-						label: `${node.data.label}\n${node.data.type}`,
+						degree: graphLayout.degreeByNode.get(node.id) ?? 0,
 						details: node.data.details,
+						dimmed:
+							selectionActive && !connectedNodeIds.has(node.id)
+								? true
+								: undefined,
+						label: node.data.label,
+						palette,
+						title: node.data.label,
 						type: node.data.type,
 					},
-					position: node.position,
+					position: graphLayout.positions[node.id] ?? node.position,
+					sourcePosition: Position.Right,
 					style: {
-						background: nodeBackground,
-						border: `1px solid ${palette.border}`,
-						borderRadius: 8,
-						color: palette.text,
-						fontSize: isEquipment ? 13 : 11,
-						fontWeight: 700,
-						lineHeight: 1.35,
-						minHeight: isEquipment ? 76 : 62,
-						padding: isEquipment ? 12 : 9,
-						whiteSpace: "pre-line",
-						width: isDocument ? 220 : isEquipment ? 210 : 180,
+						width: isDocument ? 252 : isEquipment ? 244 : GraphNodeWidth,
 					},
+					targetPosition: Position.Left,
+					type: "evidence",
 				};
-			});
-	}, [connectedNodeIds, filter, focusedMode, graph.nodes, search]);
-	const edges: Edge[] = useMemo(() => {
-		const visibleNodeIds = new Set(nodes.map((node) => node.id));
-		return graph.edges
-			.filter(
-				(edge) =>
-					visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target),
-			)
-			.map((edge) => ({
-				ariaLabel: `Graph edge ${edge.source_node ?? edge.source} ${FormatDisplayLabel(edge.relation_type)} ${edge.target_node ?? edge.target}`,
-				id: edge.id,
-				interactionWidth: 24,
-				label:
-					(selectedNode &&
+			}),
+		[
+			connectedNodeIds,
+			graphLayout.degreeByNode,
+			graphLayout.positions,
+			selectionActive,
+			visibleGraphNodes,
+		],
+	);
+	const edges: Edge[] = useMemo(
+		() =>
+			visibleGraphEdges.map((edge) => {
+				const stroke = EdgeStroke(edge.validation_status);
+				const isHighlighted =
+					selectedEdge?.id === edge.id ||
+					Boolean(
+						selectedNode &&
 						(edge.source === selectedNode.id ||
-							edge.target === selectedNode.id)) ||
-					selectedEdge?.id === edge.id
-						? FormatDisplayLabel(edge.label)
-						: undefined,
-				source: edge.source,
-				target: edge.target,
-				data: { original: edge },
-				labelBgStyle: { fill: "var(--app-surface)" },
-				labelStyle: { fill: "var(--app-muted)", fontWeight: 700 },
-				style: {
-					stroke: EdgeStroke(edge.validation_status),
-					strokeWidth: selectedEdge?.id === edge.id ? 2.8 : 1.8,
-				},
-				type: "smoothstep",
-			}));
-	}, [graph.edges, nodes, selectedEdge, selectedNode]);
+							edge.target === selectedNode.id),
+					);
+				const isDimmed = selectionActive && !isHighlighted;
+				return {
+					ariaLabel: `Graph edge ${edge.source_node ?? edge.source} ${FormatDisplayLabel(edge.relation_type)} ${edge.target_node ?? edge.target}`,
+					data: { original: edge },
+					id: edge.id,
+					interactionWidth: 28,
+					label: isHighlighted ? FormatDisplayLabel(edge.label) : undefined,
+					labelBgBorderRadius: 6,
+					labelBgPadding: [8, 4],
+					labelBgStyle: { fill: "var(--app-surface)" },
+					labelStyle: {
+						fill: "var(--app-text)",
+						fontSize: 11,
+						fontWeight: 700,
+					},
+					markerEnd: {
+						color: stroke,
+						height: 14,
+						type: MarkerType.ArrowClosed,
+						width: 14,
+					},
+					source: edge.source,
+					style: {
+						stroke,
+						strokeOpacity: isDimmed ? 0.14 : 0.78,
+						strokeWidth: isHighlighted ? 2.8 : 1.6,
+					},
+					target: edge.target,
+					type: "smoothstep",
+					zIndex: isHighlighted ? 8 : 1,
+				};
+			}),
+		[selectionActive, selectedEdge, selectedNode, visibleGraphEdges],
+	);
 	const selectedDetails = selectedNode?.data.details as
 		Record<string, unknown> | undefined;
 	const selectedPath = useMemo(() => {
@@ -445,9 +538,9 @@ export default function GraphPage() {
 					</div>
 				</div>
 
-				<div className="grid min-h-[min(74vh,760px)] gap-0 xl:grid-cols-[minmax(0,1fr)_24rem]">
+				<div className="min-h-[min(76vh,820px)]">
 					<div
-						className="relative h-[min(74vh,760px)] min-h-[520px] bg-app-graph-bg xl:min-h-[680px]"
+						className="relative h-[min(76vh,820px)] min-h-[560px] bg-app-graph-bg"
 						ref={graphViewportRef}
 					>
 						{isLoading && !graph.nodes.length ? (
@@ -481,15 +574,15 @@ export default function GraphPage() {
 						)}
 					</div>
 
-					<aside className="min-w-0 border-t border-app-border bg-app-panel p-4 xl:border-l xl:border-t-0">
+					<div className="grid min-w-0 gap-4 border-t border-app-border bg-app-panel p-4 xl:grid-cols-[minmax(0,1fr)_18rem]">
 						<SelectedNodePanel
 							path={selectedPath}
 							selectedEdge={selectedEdge}
 							selectedDetails={selectedDetails}
 							selectedNode={selectedNode}
 						/>
-						<GraphLegend className="mt-4" />
-					</aside>
+						<GraphLegend />
+					</div>
 				</div>
 			</DataCard>
 		</>
@@ -656,6 +749,162 @@ function GraphLoading() {
 			<SkeletonBlock className="h-[min(66vh,650px)] min-h-[420px]" />
 		</div>
 	);
+}
+
+function BuildReadableGraphLayout(
+	graphNodes: GraphNodeRecord[],
+	graphEdges: GraphEdgeRecord[],
+) {
+	const positions: Record<string, { x: number; y: number }> = {};
+	const nodeById = new Map(graphNodes.map((node) => [node.id, node]));
+	const degreeByNode = new Map(graphNodes.map((node) => [node.id, 0]));
+	const relatedAssetCountsByNode = new Map<string, Map<string, number>>();
+
+	graphEdges.forEach((edge) => {
+		const source = nodeById.get(edge.source);
+		const target = nodeById.get(edge.target);
+		if (!source || !target) return;
+		degreeByNode.set(edge.source, (degreeByNode.get(edge.source) ?? 0) + 1);
+		degreeByNode.set(edge.target, (degreeByNode.get(edge.target) ?? 0) + 1);
+
+		if (source.data.type === "Equipment" && target.data.type !== "Equipment") {
+			AddRelatedAsset(relatedAssetCountsByNode, target.id, source.id);
+		}
+		if (target.data.type === "Equipment" && source.data.type !== "Equipment") {
+			AddRelatedAsset(relatedAssetCountsByNode, source.id, target.id);
+		}
+	});
+
+	const equipmentNodes = graphNodes
+		.filter((node) => node.data.type === "Equipment")
+		.sort((a, b) => CompareGraphNodes(a, b, degreeByNode));
+	const assetRank = new Map(
+		equipmentNodes.map((node, index) => [node.id, index]),
+	);
+	const laneOrder = equipmentNodes.map((node) => node.id);
+	const laneByNode = new Map(equipmentNodes.map((node) => [node.id, node.id]));
+	const fallbackLane = "__unlinked__";
+	let hasFallbackLane = false;
+
+	graphNodes.forEach((node) => {
+		if (laneByNode.has(node.id)) return;
+		const lane = PickAssetLane(
+			relatedAssetCountsByNode.get(node.id),
+			assetRank,
+		);
+		if (lane) {
+			laneByNode.set(node.id, lane);
+			return;
+		}
+		laneByNode.set(node.id, fallbackLane);
+		hasFallbackLane = true;
+	});
+
+	if (hasFallbackLane || (!laneOrder.length && graphNodes.length)) {
+		laneOrder.push(fallbackLane);
+	}
+
+	const bucketsByLane = new Map<string, Map<number, GraphNodeRecord[]>>();
+	graphNodes.forEach((node) => {
+		const lane = laneByNode.get(node.id) ?? fallbackLane;
+		const column = GraphColumn(node);
+		if (!bucketsByLane.has(lane)) bucketsByLane.set(lane, new Map());
+		const buckets = bucketsByLane.get(lane);
+		if (!buckets?.has(column)) buckets?.set(column, []);
+		buckets?.get(column)?.push(node);
+	});
+
+	const minColumn = graphNodes.length
+		? Math.min(...graphNodes.map(GraphColumn))
+		: 0;
+	let yCursor = 0;
+
+	laneOrder.forEach((lane) => {
+		const buckets = bucketsByLane.get(lane);
+		if (!buckets) return;
+		const maxStack = Math.max(
+			1,
+			...Array.from(buckets.values()).map((nodes) => nodes.length),
+		);
+		const laneHeight = Math.max(
+			GraphLaneMinHeight,
+			maxStack * GraphStackGap + 48,
+		);
+
+		Array.from(buckets.entries())
+			.sort(([columnA], [columnB]) => columnA - columnB)
+			.forEach(([column, nodes]) => {
+				nodes.sort((a, b) => CompareGraphNodes(a, b, degreeByNode));
+				const stackHeight = (nodes.length - 1) * GraphStackGap;
+				const startY =
+					yCursor + Math.max(24, (laneHeight - stackHeight - 92) / 2);
+
+				nodes.forEach((node, index) => {
+					positions[node.id] = {
+						x: (column - minColumn) * GraphColumnGap,
+						y: Math.round(startY + index * GraphStackGap),
+					};
+				});
+			});
+
+		yCursor += laneHeight;
+	});
+
+	return { degreeByNode, positions };
+}
+
+function AddRelatedAsset(
+	relatedAssetCountsByNode: Map<string, Map<string, number>>,
+	nodeId: string,
+	assetId: string,
+) {
+	if (!relatedAssetCountsByNode.has(nodeId)) {
+		relatedAssetCountsByNode.set(nodeId, new Map());
+	}
+	const counts = relatedAssetCountsByNode.get(nodeId);
+	counts?.set(assetId, (counts.get(assetId) ?? 0) + 1);
+}
+
+function PickAssetLane(
+	assetCounts: Map<string, number> | undefined,
+	assetRank: Map<string, number>,
+) {
+	if (!assetCounts?.size) return null;
+	return (
+		Array.from(assetCounts.entries())
+			.filter(([assetId]) => assetRank.has(assetId))
+			.sort(([assetA, countA], [assetB, countB]) => {
+				if (countA !== countB) return countB - countA;
+				return (assetRank.get(assetA) ?? 0) - (assetRank.get(assetB) ?? 0);
+			})[0]?.[0] ?? null
+	);
+}
+
+function GraphColumn(node: GraphNodeRecord) {
+	return GraphColumnByType[node.data.type] ?? 6;
+}
+
+function CompareGraphNodes(
+	a: GraphNodeRecord,
+	b: GraphNodeRecord,
+	degreeByNode: Map<string, number>,
+) {
+	const degreeDelta =
+		(degreeByNode.get(b.id) ?? 0) - (degreeByNode.get(a.id) ?? 0);
+	if (degreeDelta) return degreeDelta;
+
+	const typeDelta = TypeRank(a.data.type) - TypeRank(b.data.type);
+	if (typeDelta) return typeDelta;
+
+	return a.data.label.localeCompare(b.data.label, undefined, {
+		numeric: true,
+		sensitivity: "base",
+	});
+}
+
+function TypeRank(type: string) {
+	const index = TypeSortOrder.indexOf(type);
+	return index >= 0 ? index : TypeSortOrder.length;
 }
 
 function EdgeStroke(status: string) {
