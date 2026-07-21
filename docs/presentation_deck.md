@@ -1,115 +1,240 @@
-# Presentation Deck
+# Industrial Ops Brain
 
-This is a judge presentation outline for the ET AI Hackathon 2026 brief.
+AI for Industrial Knowledge Intelligence
 
-## Slide 1: Industrial Ops Brain
+Unified Asset and Operations Brain for ET AI Hackathon 2026
 
-AI for Industrial Knowledge Intelligence: Unified Asset and Operations Brain.
+Industrial teams already have the evidence they need, but it is scattered across manuals, work orders, inspection reports, spreadsheets, safety procedures, sensor exports, regulatory extracts, and operator logs.
 
-One line: a local evidence workspace that turns uploaded plant documents into cited answers, asset intelligence, graph traces, RCA, compliance review, and audit evidence packs.
+Industrial Ops Brain turns uploaded industrial files into a local evidence workspace for cited answers, asset intelligence, graph traces, root cause analysis, compliance review, and evidence packs ready for audit.
 
-## Slide 2: Problem And Challenge
+Core promise:
 
-Industrial teams work across disconnected document systems: drawings, work orders, procedures, inspection reports, spreadsheets, regulatory records, and email archives.
+- Upload operational evidence.
+- Analyse the workspace.
+- Ask cited questions.
+- Inspect asset history, graph links, compliance gaps, RCA, and exportable evidence.
 
-The result is slower decisions, incomplete equipment history, avoidable downtime risk, compliance gaps, and loss of experienced operator knowledge.
+## 1. Industrial teams lose time because evidence is fragmented
 
-Industrial Ops Brain addresses the brief by making heterogeneous industrial documents queryable, actionable, and continuously updated at the point of need.
+Maintenance, engineering, safety, quality, and operations teams often work from separate document systems.
 
-## Slide 3: Prototype Workflow
+Common sources are disconnected:
 
-- Uploads PDF, DOCX, TXT, CSV, and XLSX files.
-- Parses embedded text, tables, office documents, and sparse PDFs with OCR fallback.
-- Starts from an empty workspace and keeps upload separate from generated analysis.
-- Chunks and embeds local evidence.
-- Extracts assets, entities, events, gaps, contradictions, and graph edges.
-- Exact duplicate content is skipped.
-- Users can clear the workspace.
+- Equipment manuals and quick guides.
+- Work orders and maintenance logs.
+- P&IDs, inspection forms, and scanned records.
+- Historian exports and sensor anomaly tables.
+- Safety SOPs, regulatory extracts, and compliance checklists.
 
-## Slide 4: Evidence Pipeline And Provenance
+The impact is practical:
 
-- Validate file extension, MIME type, signature, size, and binary markers.
-- Parse source pages.
-- Store chunks and pgvector embeddings.
-- Retrieve evidence by semantic similarity.
-- Generate records from source evidence.
-- Keep filename, page, snippet, confidence, and validation status visible.
+- Slower decisions during failures.
+- Incomplete asset history.
+- Missed contradictions across records.
+- Harder compliance preparation.
+- Loss of experienced operator knowledge.
 
-## Slide 5: Knowledge Graph
+## 2. The prototype creates a local operating intelligence workspace
 
-Generated graph edges connect assets, documents, failures, controls, compliance gaps, contradictions, and events.
+Industrial Ops Brain starts from user uploaded evidence and keeps every generated answer tied to source documents.
 
-Each edge carries:
+What the prototype does:
 
-- Relation type.
+- Ingests PDF, DOCX, TXT, CSV, and XLSX files.
+- Parses text, tables, office documents, and PDFs with optional OCR fallback.
+- Chunks and embeds evidence locally.
+- Extracts assets, entities, events, gaps, contradictions, and graph links.
+- Retrieves relevant evidence before generating chat, RCA, and compliance outputs.
+- Shows filename, page, snippet, confidence, and validation status wherever provenance matters.
+
+This addresses the brief by making heterogeneous industrial knowledge queryable, connected, actionable, and updated when new files are uploaded and analysed.
+
+## 3. The evidence pipeline is designed for traceability first
+
+The system treats provenance as a product requirement, not a final decoration.
+
+Ingestion controls:
+
+- File extension, MIME type, signature, size, and binary marker validation.
+- Accepted files are stored locally.
+- Exact duplicate content is skipped using SHA-256.
+- Generated analysis runs only after the user selects Analyse workspace.
+- Per file ingestion is atomic, so one failed file does not invalidate the whole batch.
+- Clearing the workspace removes local workspace records and tracked uploaded files.
+
+Evidence pipeline:
+
+1. Upload evidence.
+2. Parse pages and tables.
+3. Chunk source text.
+4. Generate local FastEmbed embeddings.
+5. Store chunks and vectors in Postgres with pgvector.
+6. Retrieve relevant chunks for user questions and workflows.
+7. Validate generated records against uploaded source filenames, pages, and snippets.
+
+## 4. The knowledge graph turns documents into auditable relationships
+
+The graph links asset evidence across files instead of showing documents as isolated search results.
+
+Graph edges connect:
+
+- Assets.
+- Documents.
+- Failure modes.
+- Work orders.
+- Spare parts.
+- Historian signals.
+- Regulatory references.
+- Compliance gaps.
+- Contradictions.
+- Timeline events.
+
+Each graph edge stores:
+
+- Source node, relation type, and target node.
 - Confidence.
-- Source document.
-- Source page.
+- Source document and source page.
 - Evidence text.
-- Validation status and reason.
+- Validation status and validation reason.
 
-## Slide 6: RCA And Compliance Intelligence
+Example validated links from the sample corpus:
 
-RCA combines selected asset, observed symptom, retrieved evidence, graph paths, contradictions, and cited LLM output.
+- P-101 to seal leakage from an incident report.
+- P-101 to mechanical seal stockout from spare inventory.
+- C-204 to overdue inspection from compliance and maintenance records.
+- B-12 to LOTO control from a boiler safety SOP.
 
-The output includes likely causes, supporting evidence, recommended checks, preventive actions, cited documents, and graph context.
+## 5. The judge demo shows intelligence across functions in one flow
 
-Compliance workflow shows generated gaps, corrective actions, contradiction evidence, and evidence pack export.
+The UI has seven focused routes:
 
-This maps to the brief focus on Factory Act, OISD, PESO, environmental norms, quality standards, and audit evidence packages.
+- Command centre for workspace status.
+- Documents for upload, parser metadata, page counts, and analysis.
+- Chat for cited operational questions.
+- Assets for risk, timeline, provenance, gaps, contradictions, and evidence export.
+- Graph for node and edge inspection with source snippets.
+- Compliance for gaps, contradiction evidence, summaries, and evidence packs.
+- RCA for likely causes, checks, preventive actions, graph paths, and citations.
 
-## Slide 7: Architecture
+Representative demo question:
 
-Next.js provides the local UI and API proxy. FastAPI provides backend routes. Local Postgres stores source records, generated records, and pgvector embeddings. FastEmbed creates local embeddings. DeepSeek is called only when configured. NetworkX builds graph responses.
+What evidence explains the P-101 seal failure?
 
-Reference: `docs/architecture.md`.
+Expected evidence pattern:
 
-## Slide 8: Evaluation Evidence
+- Seal leakage from the P-101 incident report.
+- High vibration context from historian and sensor data.
+- Mechanical seal stockout from spare inventory.
+- Relevant manual or guide guidance from P-101 maintenance documents.
+- Related graph paths and citations back to source pages.
 
-Deterministic benchmark:
+## 6. RCA and compliance workflows convert retrieval into action
 
-- 71/71 checks.
-- 12 categories.
-- 17 source documents across 5 formats.
-- 100.0% citation hit rate.
-- 90.7% retrieval context precision.
-- 100.0% retrieval context recall.
-- 100.0% entity extraction precision and recall.
-- 100.0% compliance gap accuracy.
-- 100.0% graph link completeness.
+The prototype is not just search. It packages evidence into operational workflows.
 
-Reference: `docs/benchmark_scorecard.md`.
+RCA workflow:
 
-## Slide 9: Judging Criteria Mapping
+- Select an asset and enter an observed symptom.
+- Retrieve source evidence and graph paths.
+- Include contradictions when records conflict.
+- Generate likely causes, supporting evidence, recommended checks, preventive actions, and cited documents.
 
-| Criteria             | Weight | Prototype evidence                                                                                                  |
-| -------------------- | -----: | ------------------------------------------------------------------------------------------------------------------- |
-| Innovation           |    25% | RAG, graph provenance, compliance evidence, and RCA in one local workflow.                                          |
-| Business Impact      |    25% | Targets fragmented asset knowledge, downtime context, compliance gaps, and audit evidence.                          |
-| Technical Excellence |    20% | Typed frontend, FastAPI, Postgres, pgvector, migrations, tests, benchmark, and validation controls.                 |
-| Scalability          |    15% | Uses Postgres, pgvector, chunking, embeddings, and workspace scoped schema; production scaling remains future work. |
-| User Experience      |    15% | Seven focused app routes for command centre, documents, chat, assets, graph, compliance, and RCA.                   |
+Compliance workflow:
 
-## Slide 10: Demo, Boundary, And Outcome
+- Review generated gaps across the uploaded corpus.
+- Inspect corrective actions and contradiction evidence.
+- Ask questions focused on compliance.
+- Export evidence packs with filenames, pages, snippets, graph paths, gaps, and contradictions.
 
-Demo path:
+Brief alignment:
 
-1. Upload all files from `sample_data/`.
-2. Analyse workspace.
-3. Ask a P-101 evidence question.
-4. Inspect P-101 asset intelligence.
-5. Select a graph edge and export graph.
-6. Review compliance gaps.
-7. Generate RCA.
-8. Export evidence pack.
+- Factory Act, OISD, PESO, environmental norms, quality standards, and audit evidence packages are treated as compliance evidence domains.
+- The current sample corpus exercises regulatory extracts, safety SOPs, inspection frequency, stock minimums, restart authorisation conflict, and energy isolation controls.
 
-Current boundary:
+## 7. The architecture is simple, local, and inspectable
+
+Runtime architecture:
+
+- Next.js provides the local frontend and API proxy.
+- FastAPI provides backend routes.
+- Upload validation and parsers handle PDF, DOCX, TXT, CSV, and XLSX.
+- RapidOCR is available for sparse PDFs when OCR is enabled.
+- FastEmbed creates local BAAI/bge-small-en-v1.5 embeddings.
+- Postgres stores source records, generated records, and pgvector embeddings.
+- NetworkX builds graph responses.
+- DeepSeek is called only when configured for generated analysis, chat, RCA, and compliance summaries.
+
+Core flow:
+
+User upload to validation to parser to chunks to embeddings to Postgres to retrieval to cited intelligence workflows.
+
+Production boundary:
 
 - Local prototype.
 - One default workspace.
-- No authentication layer.
-- No production deployment files.
-- No live QMS, historian, CMMS, or email connector.
-- DeepSeek key required for live generated analysis and answer generation.
+- No authentication or role based authorisation.
+- No production deployment configuration.
+- No live QMS, historian, CMMS, email, or document management connector.
+- Generated analysis, live chat, RCA, and compliance summaries require a configured DeepSeek API key.
 
-Industrial Ops Brain turns uploaded operational documents into traceable industrial intelligence while keeping every answer, recommendation, graph link, and compliance finding tied to source evidence.
+## 8. Deterministic evaluation shows the evidence layer is working
+
+Benchmark generated on 20 July 2026 UTC.
+
+The benchmark parses the sample corpus with the backend parser stack, builds deterministic retrieval checks, and validates evidence contracts without calling an LLM or mutating the database.
+
+Headline result:
+
+- 71 out of 71 checks passed.
+- 12 benchmark categories.
+- 17 synthetic source documents.
+- 5 supported source formats.
+- 550.81 ms total runtime.
+- 496.7 ms parse runtime.
+- 3.95 ms P95 check latency.
+
+Quality metrics:
+
+- 100.0 percent citation hit rate.
+- 100.0 percent answer snippet hit rate.
+- 90.7 percent retrieval context precision.
+- 100.0 percent retrieval context recall.
+- 100.0 percent grounded answer claim F1.
+- 100.0 percent abstention accuracy.
+- 100.0 percent entity extraction precision and recall.
+- 100.0 percent compliance gap accuracy.
+- 100.0 percent contradiction pair accuracy.
+- 100.0 percent RCA evidence accuracy.
+- 100.0 percent graph link completeness and graph validation accuracy.
+
+## 9. The build maps directly to the judging criteria
+
+| Judging criterion    |     Weight | Prototype evidence                                                                                                                                                    |
+| -------------------- | ---------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Innovation           | 25 percent | Combines local document parsing, RAG, evidence validation, graph provenance, RCA, compliance review, and audit evidence packs in one workflow.                        |
+| Business impact      | 25 percent | Targets fragmented asset knowledge, downtime context, compliance preparation, root cause workflows, and operator knowledge retention.                                 |
+| Technical excellence | 20 percent | Uses a typed Next.js frontend, FastAPI route separation, SQLAlchemy models, Alembic migrations, pgvector retrieval, backend tests, and deterministic benchmark gates. |
+| Scalability          | 15 percent | Uses Postgres, pgvector, chunking, local embeddings, and records scoped to each workspace; production scaling and live connectors remain future work.                 |
+| User experience      | 15 percent | Provides focused workflows for command centre, documents, chat, assets, graph, compliance, RCA, exports, and workspace clearing.                                      |
+
+The key trade off is deliberate: the prototype prioritises grounded local evidence and judge inspectability over production breadth.
+
+## 10. The takeaway is traceable industrial intelligence, not generic chat
+
+Repeatable judge demo path:
+
+1. Start the local app.
+2. Upload all 17 sample evidence files.
+3. Run Analyse workspace.
+4. Ask the P-101 seal failure question.
+5. Inspect P-101 asset intelligence.
+6. Select a graph edge and verify source evidence.
+7. Review compliance gaps for C-204, P-101, and B-12.
+8. Generate RCA for P-101 seal leakage after high vibration alarms.
+9. Export graph and evidence packs.
+10. Clear the workspace and confirm the app returns to an empty state.
+
+Final message:
+
+Industrial Ops Brain turns uploaded operational documents into traceable industrial intelligence while keeping every answer, recommendation, graph link, compliance finding, and RCA action tied to source evidence.
