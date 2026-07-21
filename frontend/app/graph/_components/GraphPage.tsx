@@ -232,6 +232,7 @@ export default function GraphPage() {
 				const isDocument = node.data.type === "Document";
 				const isEquipment = node.data.type === "Equipment";
 				return {
+					ariaLabel: `Graph node ${node.data.label} (${node.data.type})`,
 					id: node.id,
 					data: {
 						label: `${node.data.label}\n${node.data.type}`,
@@ -263,7 +264,9 @@ export default function GraphPage() {
 					visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target),
 			)
 			.map((edge) => ({
+				ariaLabel: `Graph edge ${edge.source_node ?? edge.source} ${FormatDisplayLabel(edge.relation_type)} ${edge.target_node ?? edge.target}`,
 				id: edge.id,
+				interactionWidth: 24,
 				label:
 					(selectedNode &&
 						(edge.source === selectedNode.id ||
@@ -594,10 +597,10 @@ function SelectedNodePanel({
 						{path.summary}
 					</p>
 					<div className="mt-3 grid gap-2">
-						{path.edges.slice(0, 5).map((edge) => (
+						{path.edges.slice(0, 5).map((edge, index) => (
 							<div
 								className="break-words border-l-2 border-app-border pl-2 text-xs font-semibold leading-5 text-app-muted"
-								key={`${edge.source}-${edge.label}-${edge.target}`}
+								key={`${edge.source}-${edge.label}-${edge.target}-${index}`}
 							>
 								{edge.source} / {FormatDisplayLabel(edge.label)} / {edge.target}
 							</div>

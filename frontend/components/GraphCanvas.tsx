@@ -79,7 +79,11 @@ export function GraphCanvas({
 	);
 
 	return (
-		<div className="h-full w-full" ref={viewportRef}>
+		<div
+			className="h-full w-full"
+			data-testid="evidence-graph"
+			ref={viewportRef}
+		>
 			<ReactFlow
 				edges={edges}
 				fitView

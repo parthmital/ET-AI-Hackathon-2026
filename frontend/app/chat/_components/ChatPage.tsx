@@ -301,7 +301,7 @@ function GraphPathsPanel({ paths }: { paths: GraphPath[] }) {
 						{path.summary}
 					</p>
 					<div className="mt-3 space-y-1.5">
-						{path.edges.slice(0, 5).map((edge) => (
+						{path.edges.slice(0, 5).map((edge, index) => (
 							<EvidenceReferenceCard
 								className="bg-app-panel"
 								evidence={{
@@ -316,7 +316,7 @@ function GraphPathsPanel({ paths }: { paths: GraphPath[] }) {
 										}`,
 									status: edge.validation_status ?? "weak",
 								}}
-								key={`${edge.source}-${edge.label}-${edge.target}`}
+								key={`${edge.source}-${edge.label}-${edge.target}-${index}`}
 							/>
 						))}
 						{path.edges.length > 5 ? (
