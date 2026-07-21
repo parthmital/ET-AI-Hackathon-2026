@@ -9,6 +9,7 @@ Source brief: [ET AI Hackathon 2026.pdf](<ET AI Hackathon 2026.pdf>)
 ## Table of contents
 
 - [Quick start](#quick-start)
+- [Screenshots](#screenshots)
 - [Project overview](#project-overview)
 - [Hackathon alignment](#hackathon-alignment)
 - [Key features](#key-features)
@@ -89,6 +90,36 @@ This starts FastAPI on port 8000 and Next.js on port 3000. Expected result:
 - Upload files from `sample_data/`.
 - Open Documents and select `Analyse workspace`.
 - Review Documents, Chat, Assets, Graph, Compliance, and RCA.
+
+## Screenshots
+
+### Command centre
+
+![Command centre dashboard](docs/screenshots/command-centre.png)
+
+### Documents
+
+![Documents workspace](docs/screenshots/documents.png)
+
+### Ask
+
+![Ask workflow](docs/screenshots/ask.png)
+
+### Assets
+
+![Assets view](docs/screenshots/assets.png)
+
+### Graph
+
+![Knowledge graph view](docs/screenshots/graph.png)
+
+### Compliance
+
+![Compliance review](docs/screenshots/compliance.png)
+
+### RCA
+
+![Root cause analysis workflow](docs/screenshots/rca.png)
 
 ## Project overview
 
